@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ProjectGuid>9f667892-7018-4d30-9b07-ec75a4bc32b3</ProjectGuid>
+    <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>The Codebelt.Extensions.Swashbuckle.AspNetCore namespace contains types and extension methods that complements the Swashbuckle.AspNetCore namespace by adding new ways of working with Swagger 2.0 and OpenAPI 3.0.</Description>
+    <PackageTags>extension-methods extensions document-filter operation-filter restful user-agent x-api-key jwt-bearer restful-swagger</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Codebelt.Extensions.Asp.Versioning" Version="8.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
+  </ItemGroup>
+
+</Project>

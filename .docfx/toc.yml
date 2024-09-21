@@ -1,4 +1,4 @@
-- name: ClassLibrary1 API
-  href: api/ClassLibrary1.html
+- name: Swashbuckle.AspNetCore API
+  href: api/Codebelt.Extensions.Swashbuckle.AspNetCore.html
 - name: NuGet
   href: packages

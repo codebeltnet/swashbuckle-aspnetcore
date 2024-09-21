@@ -1,4 +1,4 @@
-name: ClassLibrary1 CI/CD Pipeline
+name: Swashbuckle.AspNetCore Ext. CI/CD Pipeline
 on:
   pull_request:
     branches: [main]
@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-        framework: [net8.0]
+        framework: [net8.0,net6.0]
     outputs:
       version: ${{ steps.minver-calculate.outputs.version }}
     steps:
@@ -45,12 +45,12 @@ jobs:
         name: Calculate Version
         uses: codebeltnet/minver-calculate@v2
 
-      - name: Download classlibrary1.snk file
+      - name: Download swashbuckle.snk file
         uses: codebeltnet/gcp-download-file@v1
         with:
           serviceAccountKey: ${{ secrets.GCP_TOKEN }}
           bucketName: ${{ secrets.GCP_BUCKETNAME }}
-          objectName: classlibrary1.snk
+          objectName: swashbuckle.snk
 
       - name: Restore Dependencies
         uses: codebeltnet/dotnet-restore@v2
@@ -135,7 +135,7 @@ jobs:
         with:
           token: ${{ secrets.SONAR_TOKEN }}
           organization: geekle
-          projectKey: classlibrary1
+          projectKey: swashbuckle-aspnetcore
           version: ${{ needs.build.outputs.version }}
 
       - name: Build
@@ -162,7 +162,7 @@ jobs:
         uses: codebeltnet/codecov-scan@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          repository: organization/classlibrary1
+          repository: codebeltnet/swashbuckle-aspnetcore
           
   codeql:
     name: 🛡️ Security Analysis
