@@ -1,4 +1,4 @@
-﻿# Contributing to `Classlibrary1`
+﻿# Contributing to `Extensions for Swashbuckle.AspNetCore API by Codebelt`
 When contributing to this repository, please first discuss the change you wish to make via issue,
 email, or any other method with the owners of this repository before making a change.
 
@@ -48,5 +48,5 @@ That is, in pursuit of the items on the left we have found the items on the righ
 [Manifesto for Software Craftsmanship](https://manifesto.softwarecraftsmanship.org/) is the originator of this text.
 
 ## License
-By contributing to `ClassLibrary1`, you agree that your contributions will be licensed
+By contributing to `Extensions for Swashbuckle.AspNetCore API by Codebelt`, you agree that your contributions will be licensed
 under the MIT license.
