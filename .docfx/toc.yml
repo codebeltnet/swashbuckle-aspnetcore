@@ -1,0 +1,4 @@
+- name: ClassLibrary1 API
+  href: api/ClassLibrary1.html
+- name: NuGet
+  href: packages
