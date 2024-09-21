@@ -4,7 +4,7 @@
     <IsTestProject>$(MSBuildProjectName.EndsWith('Tests'))</IsTestProject>
     <IsLinux>$([MSBuild]::IsOSPlatform('Linux'))</IsLinux>
     <IsWindows>$([MSBuild]::IsOSPlatform('Windows'))</IsWindows>
-    <IsMainAuthor Condition="'$(EMAIL)' == 'classlibrary1@dot.net'">true</IsMainAuthor>
+    <IsMainAuthor Condition="'$(EMAIL)' == 'michael@geekle.io'">true</IsMainAuthor>
     <SkipSignAssembly>false</SkipSignAssembly>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -15,16 +15,16 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsTestProject)' == 'false'">
-    <TargetFrameworks>net8.0</TargetFrameworks>
-    <Copyright>Copyright © ClassLibrary1 2024. All rights reserved.</Copyright>
-    <Authors>ClassLibrary1</Authors>
-    <Company>ClassLibrary1</Company>
-    <Product>ClassLibrary1</Product>
+    <TargetFrameworks>net8.0;net6.0</TargetFrameworks>
+    <Copyright>Copyright © Geekle 2024. All rights reserved.</Copyright>
+    <Authors>gimlichael</Authors>
+    <Company>Geekle</Company>
+    <Product>Extensions for Swashbuckle.AspNetCore API by Codebelt</Product>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://www.classlibrary1.net/</PackageProjectUrl>
+    <PackageProjectUrl>https://swashbuckle.codebelt.net/</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/classlibrary1/ClassLibrary1</RepositoryUrl>
+    <RepositoryUrl>https://github.com/codebeltnet/swashbuckle-aspnetcore</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en-US</NeutralLanguage>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -33,27 +33,27 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly Condition="('$(CI)' == 'true' OR '$(IsMainAuthor)' == 'true') AND '$(SkipSignAssembly)' == 'false'">true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)ClassLibrary1.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)swashbuckle.snk</AssemblyOriginatorKeyFile>
     <NoWarn>7035,CA2260</NoWarn>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(NuGetPackageRoot)' != ''">
-    <SourceRoot Include="$(NuGetPackageRoot)" RepositoryUrl="https://github.com/classlibrary1/ClassLibrary1" />
+    <SourceRoot Include="$(NuGetPackageRoot)" RepositoryUrl="https://github.com/codebeltnet/swashbuckle-aspnetcore" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsTestProject)' == 'false'">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="all" />
-    <None Include="..\..\.nuget\$(MSBuildProjectName)\icon.png" Pack="true" Visible="false" PackagePath="\" />
+    <None Include="..\..\.nuget\icon.png" Pack="true" Visible="false" PackagePath="\" />
     <None Include="..\..\.nuget\$(MSBuildProjectName)\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(IsTestProject)' == 'true' AND '$(IsLinux)' == 'true'">
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsTestProject)' == 'true' AND '$(IsWindows)' == 'true'">
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
