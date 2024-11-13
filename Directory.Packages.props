@@ -3,13 +3,13 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Codebelt.Extensions.Asp.Versioning" Version="9.0.0-rc.1" />
-    <PackageVersion Include="Codebelt.Extensions.Xunit.App" Version="9.0.0-rc.1" />
-    <PackageVersion Include="Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json" Version="9.0.0-rc.1" />
+    <PackageVersion Include="Codebelt.Extensions.Asp.Versioning" Version="9.0.0" />
+    <PackageVersion Include="Codebelt.Extensions.Xunit.App" Version="9.0.0" />
+    <PackageVersion Include="Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json" Version="9.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <PackageVersion Include="MinVer" Version="6.0.0" />
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.0.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.2" />
     <PackageVersion Include="xunit" Version="2.9.2" />
