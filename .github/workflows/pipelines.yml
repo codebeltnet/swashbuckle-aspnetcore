@@ -1,12 +1,12 @@
 name: Swashbuckle.AspNetCore Ext. CI/CD Pipeline
 on:
   pull_request:
+    branches: [main]
     paths-ignore:
-      - .codecov
-      - .docfx
-      - .github
-      - .nuget
-      - '**.md'
+      - .codecov/**
+      - .docfx/**
+      - .nuget/**
+      - '**/*.md'
   workflow_dispatch:
     inputs:
       configuration:
