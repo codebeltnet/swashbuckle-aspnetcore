@@ -7,6 +7,10 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [9.0.2] - 2025-04-16
+
+This is a service update that focuses on package dependencies.
+
 ## [9.0.1] - 2025-01-30
 
 This is a service update that primarily focuses on package dependencies and minor improvements.
