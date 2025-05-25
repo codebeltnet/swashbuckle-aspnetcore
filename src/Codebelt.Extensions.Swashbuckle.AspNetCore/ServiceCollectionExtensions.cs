@@ -18,6 +18,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         /// <param name="services">The <see cref="IServiceCollection"/> to extend.</param>
         /// <param name="setup">The <see cref="RestfulSwaggerOptions"/> that may be configured.</param>
         /// <returns>A reference to <paramref name="services" /> so that additional calls can be chained.</returns>
+        /// <remarks>This method expect a call to <c>services.AddRestfulApiVersioning()</c> prior to this.</remarks>
         public static IServiceCollection AddRestfulSwagger(this IServiceCollection services, Action<RestfulSwaggerOptions> setup = null)
         {
             Validator.ThrowIfInvalidConfigurator(setup, out var options);
