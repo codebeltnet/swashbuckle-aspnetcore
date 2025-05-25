@@ -37,14 +37,13 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                            o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
                        });
                        services.AddRestfulSwagger();
-                       services.AddSwaggerGen();
                    }, app =>
                    {
                        app.UseRouting();
                        app.UseEndpoints(routes => { routes.MapControllers(); });
                        app.UseSwagger();
                        app.UseSwaggerUI();
-                   }, hostFixture: null))
+                   }))
             {
                 var client = filter.Host.GetTestClient();
                 var result = await client.GetStringAsync("/swagger/v1/swagger.json");
@@ -164,14 +163,13 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                            o.XmlDocumentations.AddByType(typeof(ServiceCollectionExtensionsTest));
                            o.JsonSerializerOptionsFactory = provider => provider.GetRequiredService<IOptions<JsonFormatterOptions>>().Value.Settings;
                        });
-                       services.AddSwaggerGen();
                    }, app =>
                    {
                        app.UseRouting();
                        app.UseEndpoints(routes => { routes.MapControllers(); });
                        app.UseSwagger();
                        app.UseSwaggerUI();
-                   }, hostFixture: null))
+                   }))
             {
                 var client = filter.Host.GetTestClient();
                 var result = await client.GetStringAsync("/swagger/v1/swagger.json");

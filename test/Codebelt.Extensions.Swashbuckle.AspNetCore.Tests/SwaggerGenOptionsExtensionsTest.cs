@@ -42,7 +42,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                        app.UseEndpoints(routes => { routes.MapControllers(); });
                        app.UseSwagger();
                        app.UseSwaggerUI();
-                   }, hostFixture: null))
+                   }))
             {
                 var client = filter.Host.GetTestClient();
                 var result = await client.GetStringAsync("/swagger/v1/swagger.json");
@@ -113,7 +113,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                        app.UseEndpoints(routes => { routes.MapControllers(); });
                        app.UseSwagger();
                        app.UseSwaggerUI();
-                   }, hostFixture: null))
+                   }))
             {
                 var client = filter.Host.GetTestClient();
                 var result = await client.GetStringAsync("/swagger/v1/swagger.json");
@@ -184,7 +184,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                        app.UseEndpoints(routes => { routes.MapControllers(); });
                        app.UseSwagger();
                        app.UseSwaggerUI();
-                   }, hostFixture: null))
+                   }))
             {
                 var client = filter.Host.GetTestClient();
                 var result = await client.GetStringAsync("/swagger/v1/swagger.json");
