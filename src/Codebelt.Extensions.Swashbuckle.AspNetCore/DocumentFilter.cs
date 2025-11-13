@@ -1,6 +1,6 @@
 ﻿using Cuemon;
 using Cuemon.Configuration;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore

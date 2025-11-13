@@ -2,7 +2,7 @@
 using Cuemon.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore
