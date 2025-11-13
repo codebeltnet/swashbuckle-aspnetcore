@@ -11,9 +11,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore
 {
@@ -70,7 +69,12 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
       }
     }
   },
-  ""components"": { }
+  ""components"": { },
+  ""tags"": [
+    {
+      ""name"": ""Fake""
+    }
+  ]
 }", result, ignoreLineEndingDifferences: true);
 
                 result = await client.GetStringAsync("/swagger/v2/swagger.json");
@@ -124,7 +128,12 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         ""format"": ""int32""
       }
     }
-  }
+  },
+  ""tags"": [
+    {
+      ""name"": ""Fake""
+    }
+  ]
 }", result, ignoreLineEndingDifferences: true);
 
             }
@@ -208,7 +217,12 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
       }
     }
   },
-  ""components"": { }
+  ""components"": { },
+  ""tags"": [
+    {
+      ""name"": ""Fake""
+    }
+  ]
 }", result, ignoreLineEndingDifferences: true);
 
                 result = await client.GetStringAsync("/swagger/v2/swagger.json");
@@ -292,7 +306,12 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         ""format"": ""int32""
       }
     }
-  }
+  },
+  ""tags"": [
+    {
+      ""name"": ""Fake""
+    }
+  ]
 }", result, ignoreLineEndingDifferences: true);
 
             }

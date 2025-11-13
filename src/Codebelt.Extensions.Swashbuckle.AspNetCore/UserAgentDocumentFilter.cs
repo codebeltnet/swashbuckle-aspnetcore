@@ -1,7 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Cuemon;
 using Microsoft.Net.Http.Headers;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore
@@ -30,26 +31,21 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         /// <remarks>Once an <seealso cref="OpenApiDocument" /> has been generated you have full control to modify the document however you see fit.</remarks>
         public override void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
+            swaggerDoc.Components ??= new OpenApiComponents();
+            swaggerDoc.Components.Parameters ??= new Dictionary<string, IOpenApiParameter>();
             swaggerDoc.Components.Parameters.Add(HeaderNames.UserAgent, new OpenApiParameter
             {
                 In = ParameterLocation.Header,
                 Name = HeaderNames.UserAgent,
                 Description = Options.Description,
                 Style = ParameterStyle.Simple,
-                Example = new OpenApiString(Options.Example),
+                Example = Options.Example,
                 Required = Options.Required
             });
 
             foreach (var operation in swaggerDoc.Paths.SelectMany(path => path.Value.Operations.Select(x => x.Value)))
             {
-                operation.Parameters.Insert(0, new OpenApiParameter
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.Parameter,
-                        Id = HeaderNames.UserAgent
-                    }
-                });
+                operation.Parameters!.Insert(0, new OpenApiParameterReference(HeaderNames.UserAgent));
             }
         }
     }

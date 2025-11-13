@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore
 {
@@ -80,11 +79,15 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         ""name"": ""User-Agent"",
         ""in"": ""header"",
         ""description"": ""The identifier of the calling client."",
-        ""style"": ""simple"",
         ""example"": ""Your-Awesome-Client/1.0.0""
       }
     }
-  }
+  },
+  ""tags"": [
+    {
+      ""name"": ""Fake""
+    }
+  ]
 }", result, ignoreLineEndingDifferences: true);
 
             }
@@ -155,6 +158,11 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
     {
       ""Bearer"": [ ]
     }
+  ],
+  ""tags"": [
+    {
+      ""name"": ""Fake""
+    }
   ]
 }", result, ignoreLineEndingDifferences: true);
 
@@ -224,6 +232,87 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
   ""security"": [
     {
       ""Basic"": [ ]
+    }
+  ],
+  ""tags"": [
+    {
+      ""name"": ""Fake""
+    }
+  ]
+}", result, ignoreLineEndingDifferences: true);
+
+            }
+        }
+
+        [Fact]
+        public async Task AddXApiKeySecurity_ShouldIncludeXApiKeyDefaults()
+        {
+            using (var filter = WebHostTestFactory.Create(services =>
+            {
+                services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
+                    .AddJsonFormatters();
+                services.AddEndpointsApiExplorer();
+                services.AddRestfulApiVersioning(o =>
+                {
+                    o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
+                    o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
+                });
+                services.AddSwaggerGen(o =>
+                {
+                    o.AddXApiKeySecurity();
+                });
+            }, app =>
+            {
+                app.UseRouting();
+                app.UseEndpoints(routes => { routes.MapControllers(); });
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }))
+            {
+                var client = filter.Host.GetTestClient();
+                var result = await client.GetStringAsync("/swagger/v1/swagger.json");
+
+                TestOutput.WriteLine(result);
+
+
+                Assert.Equal(@"{
+  ""openapi"": ""3.0.4"",
+  ""info"": {
+    ""title"": ""Codebelt.Extensions.Swashbuckle.AspNetCore.Tests"",
+    ""version"": ""1.0""
+  },
+  ""paths"": {
+    ""/Fake"": {
+      ""get"": {
+        ""tags"": [
+          ""Fake""
+        ],
+        ""responses"": {
+          ""200"": {
+            ""description"": ""OK""
+          }
+        }
+      }
+    }
+  },
+  ""components"": {
+    ""securitySchemes"": {
+      ""X-Api-Key"": {
+        ""type"": ""apiKey"",
+        ""description"": ""Protects an API by adding a first line of defense X-Api-Key header."",
+        ""name"": ""X-Api-Key"",
+        ""in"": ""header""
+      }
+    }
+  },
+  ""security"": [
+    {
+      ""X-Api-Key"": [ ]
+    }
+  ],
+  ""tags"": [
+    {
+      ""name"": ""Fake""
     }
   ]
 }", result, ignoreLineEndingDifferences: true);

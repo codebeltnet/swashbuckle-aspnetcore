@@ -2,7 +2,7 @@
 using Cuemon;
 using Cuemon.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore
@@ -41,23 +41,10 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                 Type = SecuritySchemeType.ApiKey
             });
 
-            var apiKeyRequirement = new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement()
             {
-                {
-                    new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = HttpHeaderNames.XApiKey
-                            },
-                            In = ParameterLocation.Header
-                        },
-                        Array.Empty<string>()
-                }
-            };
-
-            options.AddSecurityRequirement(apiKeyRequirement);
+                [new OpenApiSecuritySchemeReference(HttpHeaderNames.XApiKey, document)] = []
+            });
             return options;
         }
 
@@ -68,6 +55,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         /// <returns>A reference to <paramref name="options" /> so that additional calls can be chained.</returns>
         public static SwaggerGenOptions AddJwtBearerSecurity(this SwaggerGenOptions options)
         {
+            Validator.ThrowIfNull(options);
             options.AddSecurityDefinition(HttpAuthenticationSchemes.Bearer, new OpenApiSecurityScheme
             {
                 Description = $"Protects an API by adding an {HttpHeaderNames.Authorization} header using the {HttpAuthenticationSchemes.Bearer} scheme in JWT format.",
@@ -78,23 +66,10 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                 Scheme = HttpAuthenticationSchemes.Bearer.ToLowerInvariant()
             });
 
-            var jwtRequirement = new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement()
             {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = HttpAuthenticationSchemes.Bearer
-                        },
-                        In = ParameterLocation.Header
-                    },
-                    Array.Empty<string>()
-                }
-            };
-
-            options.AddSecurityRequirement(jwtRequirement);
+                [new OpenApiSecuritySchemeReference(HttpAuthenticationSchemes.Bearer, document)] = []
+            });
             return options;
         }
 
@@ -105,6 +80,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         /// <returns>A reference to <paramref name="options" /> so that additional calls can be chained.</returns>
         public static SwaggerGenOptions AddBasicAuthenticationSecurity(this SwaggerGenOptions options)
         {
+            Validator.ThrowIfNull(options);
             options.AddSecurityDefinition(HttpAuthenticationSchemes.Basic, new OpenApiSecurityScheme
             {
                 Description = $"Protects an API by adding an {HttpHeaderNames.Authorization} header using the {HttpAuthenticationSchemes.Basic} scheme.",
@@ -114,23 +90,10 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                 Scheme = HttpAuthenticationSchemes.Basic.ToLowerInvariant()
             });
 
-            var basicRequirement = new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement()
             {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = HttpAuthenticationSchemes.Basic
-                        },
-                        In = ParameterLocation.Header
-                    },
-                    Array.Empty<string>()
-                }
-            };
-
-            options.AddSecurityRequirement(basicRequirement);
+                [new OpenApiSecuritySchemeReference(HttpAuthenticationSchemes.Basic, document)] = []
+            });
             return options;
         }
     }
