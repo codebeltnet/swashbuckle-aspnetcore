@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Codebelt.Extensions.Swashbuckle.AspNetCore/Codebelt.Extensions.Swashbuckle.AspNetCore.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Codebelt.Extensions.Swashbuckle.AspNetCore.Tests/Codebelt.Extensions.Swashbuckle.AspNetCore.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tooling/">
+    <Project Path="tooling/WebApiExample/WebApiExample.csproj" />
+  </Folder>
+</Solution>
