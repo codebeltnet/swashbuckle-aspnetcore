@@ -35,14 +35,14 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerGenOptions>();
             services.AddTransient<IConfigureOptions<SwaggerUIOptions>, ConfigureSwaggerUIOptions>();
             if (options.JsonSerializerOptionsFactory != null) { services.AddTransient<ISerializerDataContractResolver>(provider => new JsonSerializerDataContractResolver(options.JsonSerializerOptionsFactory(provider))); }
-            services.Configure(setup ?? (o =>
+            services.Configure<RestfulSwaggerOptions>(o =>
             {
                 o.JsonSerializerOptionsFactory = options.JsonSerializerOptionsFactory;
                 o.Settings = options.Settings;
                 o.IncludeControllerXmlComments = options.IncludeControllerXmlComments;
                 o.OpenApiInfo = options.OpenApiInfo;
                 o.XmlDocumentations = options.XmlDocumentations;
-            }));
+            });
             return services;
         }
     }
