@@ -7,9 +7,14 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
-## [10.0.3] - 2026-02-20
+## [10.0.3] - 2026-02-21
 
 This is a service update that focuses on package dependencies.
+
+### Fixed
+
+- 'AddRestfulSwagger' extension method on the ServiceCollectionExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace was fixed to only be invoked once on bootstrapping
+
 
 ## [10.0.2] - 2026-02-15
 
