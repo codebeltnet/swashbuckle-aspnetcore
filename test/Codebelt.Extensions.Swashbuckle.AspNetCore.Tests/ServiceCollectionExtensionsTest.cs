@@ -140,6 +140,40 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         }
 
         [Fact]
+        public void AddRestfulSwagger_ShouldInvokeSetupDelegate_ExactlyOnce()
+        {
+            var invocationCount = 0;
+
+            using (var filter = WebHostTestFactory.Create(services =>
+                   {
+                       services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
+                           .AddJsonFormatters();
+                       services.AddEndpointsApiExplorer();
+                       services.AddRestfulApiVersioning(o =>
+                       {
+                           o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
+                       });
+                       services.AddRestfulSwagger(o =>
+                       {
+                           invocationCount++;
+                       });
+                   }, app =>
+                   {
+                       app.UseRouting();
+                       app.UseEndpoints(routes => { routes.MapControllers(); });
+                       app.UseSwagger();
+                       app.UseSwaggerUI();
+                   }))
+            {
+                _ = filter.Host.Services.GetRequiredService<IOptions<RestfulSwaggerOptions>>().Value;
+
+                TestOutput.WriteLine($"Setup delegate invocation count: {invocationCount}");
+
+                Assert.Equal(1, invocationCount);
+            }
+        }
+
+        [Fact]
         public async Task AddRestfulSwagger_ShouldInclude_RestfulApiVersioning_and_AddRestfulSwagger_Configured()
         {
             using (var filter = WebHostTestFactory.Create(services =>
