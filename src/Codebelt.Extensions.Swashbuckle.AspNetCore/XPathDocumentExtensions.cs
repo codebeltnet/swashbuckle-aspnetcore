@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Xml.XPath;
 using Cuemon;
+using Cuemon.Reflection;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore
 {
@@ -39,6 +41,51 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         }
 
         /// <summary>
+        /// Adds XML documentation files from <see cref="AppContext.BaseDirectory"/> that match the assembly of the specified <paramref name="type"/> and its base types.
+        /// </summary>
+        /// <param name="documents">The collection of documents in XML format.</param>
+        /// <param name="type">The type whose assembly (and base type assemblies) is used to locate XML documentation files in the base directory.</param>
+        /// <returns>A reference to <paramref name="documents" /> so that additional calls can be chained.</returns>
+        public static IList<XPathDocument> AddFromBaseDirectory(this IList<XPathDocument> documents, Type type)
+        {
+            Validator.ThrowIfNull(documents);
+            Validator.ThrowIfNull(type);
+            var hierarchyAssemblyNames = GetTypeHierarchyAssemblies(type)
+                .Select(a => a.GetName().FullName)
+                .ToHashSet();
+            var domainAssemblies = AssemblyContext.GetCurrentDomainAssemblies(o =>
+            {
+                o.AssemblyFilter = _ => true;
+                o.ReferencedAssemblyFilter = _ => true;
+            }).Where(ass => hierarchyAssemblyNames.Contains(ass.GetName().FullName)).Select(ass => ass.GetName().Name).ToList();
+            foreach (var file in GetBaseDirectoryXmlFiles().Where(filename => domainAssemblies.Contains(Path.GetFileNameWithoutExtension(filename))))
+            {
+                AddByFilename(documents, file);
+            }
+            return documents;
+        }
+
+        /// <summary>
+        /// Adds all XML documentation files from <see cref="AppContext.BaseDirectory"/> that match assemblies resolved by <see cref="AssemblyContext.GetCurrentDomainAssemblies"/>.
+        /// </summary>
+        /// <param name="documents">The collection of documents in XML format.</param>
+        /// <returns>A reference to <paramref name="documents" /> so that additional calls can be chained.</returns>
+        public static IList<XPathDocument> AddByAssemblyContext(this IList<XPathDocument> documents)
+        {
+            Validator.ThrowIfNull(documents);
+            var domainAssemblies = AssemblyContext.GetCurrentDomainAssemblies(o =>
+            {
+                o.AssemblyFilter = _ => true;
+                o.ReferencedAssemblyFilter = _ => true;
+            }).Select(ass => ass.GetName().Name).ToList();
+            foreach (var file in GetBaseDirectoryXmlFiles().Where(filename => domainAssemblies.Contains(Path.GetFileNameWithoutExtension(filename))))
+            {
+                AddByFilename(documents, file);
+            }
+            return documents;
+        }
+
+        /// <summary>
         /// Adds the specified <paramref name="path"/> to the collection of <paramref name="documents"/>.
         /// </summary>
         /// <param name="documents">The collection of documents in XML format.</param>
@@ -53,6 +100,131 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                 documents.Add(new XPathDocument(path));
             }
             return documents;
+        }
+
+        /// <summary>
+        /// Adds XML documentation files from installed .NET reference packs that match the assembly of the specified <paramref name="type"/> and its base types.
+        /// </summary>
+        /// <param name="documents">The collection of documents in XML format.</param>
+        /// <param name="type">The type whose assembly (and base type assemblies) is used to locate XML documentation files in the .NET reference packs.</param>
+        /// <returns>A reference to <paramref name="documents" /> so that additional calls can be chained.</returns>
+        public static IList<XPathDocument> AddFromReferencePacks(this IList<XPathDocument> documents, Type type)
+        {
+            Validator.ThrowIfNull(documents);
+            Validator.ThrowIfNull(type);
+            var packsDirectory = GetDotnetPacksDirectory();
+            if (packsDirectory == null) { return documents; }
+            var tfm = $"net{Environment.Version.Major}.{Environment.Version.Minor}";
+            foreach (var assembly in GetTypeHierarchyAssemblies(type))
+            {
+                var assemblyName = assembly.GetName().Name;
+                foreach (var refPackDir in Directory.EnumerateDirectories(packsDirectory, "*.Ref"))
+                {
+                    var found = false;
+                    foreach (var versionDir in Directory.EnumerateDirectories(refPackDir))
+                    {
+                        var xmlPath = Path.Combine(versionDir, "ref", tfm, $"{assemblyName}.xml");
+                        if (File.Exists(xmlPath))
+                        {
+                            AddByFilename(documents, xmlPath);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) { break; }
+                }
+            }
+            return documents;
+        }
+
+        /// <summary>
+        /// Adds XML documentation files from the NuGet package cache that match the assembly of the specified <paramref name="type"/> and its base types.
+        /// </summary>
+        /// <param name="documents">The collection of documents in XML format.</param>
+        /// <param name="type">The type whose assembly (and base type assemblies) is used to locate XML documentation files in the NuGet package cache.</param>
+        /// <returns>A reference to <paramref name="documents" /> so that additional calls can be chained.</returns>
+        public static IList<XPathDocument> AddFromNuGetPackages(this IList<XPathDocument> documents, Type type)
+        {
+            Validator.ThrowIfNull(documents);
+            Validator.ThrowIfNull(type);
+            var packagesDirectory = GetNuGetPackagesDirectory();
+            if (packagesDirectory == null) { return documents; }
+            var tfm = $"net{Environment.Version.Major}.{Environment.Version.Minor}";
+            foreach (var assembly in GetTypeHierarchyAssemblies(type))
+            {
+                var assemblyName = assembly.GetName().Name;
+                var packageDir = Path.Combine(packagesDirectory, assemblyName.ToLowerInvariant());
+                if (!Directory.Exists(packageDir)) { continue; }
+                foreach (var versionDir in Directory.EnumerateDirectories(packageDir))
+                {
+                    var xmlPath = Path.Combine(versionDir, "lib", tfm, $"{assemblyName}.xml");
+                    if (File.Exists(xmlPath))
+                    {
+                        AddByFilename(documents, xmlPath);
+                        break;
+                    }
+                }
+            }
+            return documents;
+        }
+
+        private static IEnumerable<string> GetBaseDirectoryXmlFiles()
+        {
+            foreach (var file in Directory.EnumerateFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly))
+            {
+                yield return file;
+            }
+        }
+
+        private static string GetDotnetPacksDirectory()
+        {
+            var dotnetRoot = GetDotnetRootDirectory();
+            if (dotnetRoot == null) { return null; }
+            var packsDir = Path.Combine(dotnetRoot, "packs");
+            return Directory.Exists(packsDir) ? packsDir : null;
+        }
+
+        private static string GetDotnetRootDirectory()
+        {
+            var dotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT");
+            if (!string.IsNullOrWhiteSpace(dotnetRoot) && Directory.Exists(dotnetRoot)) { return dotnetRoot; }
+            var coreLib = typeof(object).Assembly.Location;
+            if (string.IsNullOrWhiteSpace(coreLib)) { return null; }
+            var directory = Path.GetDirectoryName(coreLib);
+            while (directory != null)
+            {
+                if (Directory.Exists(Path.Combine(directory, "packs"))) { return directory; }
+                directory = Path.GetDirectoryName(directory);
+            }
+            return null;
+        }
+
+        private static string GetNuGetPackagesDirectory()
+        {
+            var nugetPackages = Environment.GetEnvironmentVariable("NUGET_PACKAGES");
+            if (!string.IsNullOrWhiteSpace(nugetPackages) && Directory.Exists(nugetPackages)) { return nugetPackages; }
+            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            if (string.IsNullOrWhiteSpace(userProfile)) { return null; }
+            var defaultPath = Path.Combine(userProfile, ".nuget", "packages");
+            return Directory.Exists(defaultPath) ? defaultPath : null;
+        }
+
+        private static IEnumerable<Assembly> GetTypeHierarchyAssemblies(Type type)
+        {
+            var seen = new HashSet<string>();
+            var current = type;
+            while (current != null)
+            {
+                var assembly = current.Assembly;
+                if (!assembly.IsDynamic && !string.IsNullOrWhiteSpace(assembly.Location))
+                {
+                    if (seen.Add(assembly.GetName().FullName))
+                    {
+                        yield return assembly;
+                    }
+                }
+                current = current.BaseType;
+            }
         }
     }
 }
