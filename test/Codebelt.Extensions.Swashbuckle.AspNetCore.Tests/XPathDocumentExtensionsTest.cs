@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Xml.XPath;
 using Codebelt.Extensions.Xunit;
+using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore
@@ -184,35 +185,6 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         }
 
         [Fact]
-        public void AddByAssemblyContext_ShouldThrowArgumentNullException_WhenDocumentsIsNull()
-        {
-            IList<XPathDocument> documents = null;
-
-            Assert.Throws<ArgumentNullException>(() => documents.AddByAssemblyContext());
-        }
-
-        [Fact]
-        public void AddByAssemblyContext_ShouldReturnSameListReference()
-        {
-            var documents = new List<XPathDocument>();
-
-            var result = documents.AddByAssemblyContext();
-
-            Assert.Same(documents, result);
-        }
-
-        [Fact]
-        public void AddByAssemblyContext_ShouldAddDocuments_WhenMatchingXmlFilesExistInBaseDirectory()
-        {
-            var documents = new List<XPathDocument>();
-
-            var result = documents.AddByAssemblyContext();
-
-            Assert.Same(documents, result);
-            Assert.NotEmpty(documents);
-        }
-
-        [Fact]
         public void AddByFilename_ShouldSupportFluentChaining()
         {
             var documents = new List<XPathDocument>();
@@ -297,74 +269,66 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         }
 
         [Fact]
-        public void AddFromNuGetPackages_ShouldThrowArgumentNullException_WhenDocumentsIsNull()
-        {
-            IList<XPathDocument> documents = null;
-
-            Assert.Throws<ArgumentNullException>(() => documents.AddFromNuGetPackages(typeof(object)));
-        }
-
-        [Fact]
-        public void AddFromNuGetPackages_ShouldThrowArgumentNullException_WhenTypeIsNull()
+        public void AddByType_Generic_ShouldAddDocument_WhenXmlFileExistsForType()
         {
             var documents = new List<XPathDocument>();
 
-            Assert.Throws<ArgumentNullException>(() => documents.AddFromNuGetPackages(null));
-        }
-
-        [Fact]
-        public void AddFromNuGetPackages_ShouldReturnSameListReference()
-        {
-            var documents = new List<XPathDocument>();
-
-            var result = documents.AddFromNuGetPackages(typeof(global::Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions));
-
-            Assert.Same(documents, result);
-        }
-
-        [Fact]
-        public void AddFromNuGetPackages_ShouldNotAddDocument_WhenAssemblyIsDynamic()
-        {
-            var documents = new List<XPathDocument>();
-            var dynamicAssembly = System.Reflection.Emit.AssemblyBuilder.DefineDynamicAssembly(
-                new System.Reflection.AssemblyName("DynamicNuGetAssembly"),
-                System.Reflection.Emit.AssemblyBuilderAccess.Run);
-            var dynamicType = dynamicAssembly.DefineDynamicModule("Main").DefineType("FakeType").CreateType();
-
-            var result = documents.AddFromNuGetPackages(dynamicType);
-
-            Assert.Same(documents, result);
-            Assert.Empty(documents);
-        }
-
-        [Fact]
-        public void AddFromNuGetPackages_ShouldAddDocument_WhenNuGetPackageXmlExistsForType()
-        {
-            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            var nugetCachePath = Path.Combine(userProfile, ".nuget", "packages");
-            Assert.SkipWhen(!Directory.Exists(nugetCachePath), "NuGet global packages cache is not available in this environment.");
-
-            var documents = new List<XPathDocument>();
-
-            var result = documents.AddFromNuGetPackages(typeof(global::Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions));
+            var result = documents.AddByType<XPathDocumentExtensionsTest>();
 
             Assert.Same(documents, result);
             Assert.NotEmpty(documents);
         }
 
         [Fact]
-        public void AddFromNuGetPackages_ShouldAddDocumentsForTypeHierarchy_WhenBaseTypeIsInDifferentPackage()
+        public void AddByType_Generic_ShouldReturnSameListReference()
         {
-            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            var nugetCachePath = Path.Combine(userProfile, ".nuget", "packages");
-            Assert.SkipWhen(!Directory.Exists(nugetCachePath), "NuGet global packages cache is not available in this environment.");
-
             var documents = new List<XPathDocument>();
 
-            var result = documents.AddFromNuGetPackages(typeof(global::Codebelt.SharedKernel.Token));
+            var result = documents.AddByType<XPathDocumentExtensionsTest>();
 
             Assert.Same(documents, result);
-            Assert.True(documents.Count >= 2, $"Expected at least 2 documents (Token and its base type), but got {documents.Count}.");
+        }
+
+        [Fact]
+        public void AddFromBaseDirectory_Generic_ShouldReturnSameListReference()
+        {
+            var documents = new List<XPathDocument>();
+
+            var result = documents.AddFromBaseDirectory<XPathDocumentExtensionsTest>();
+
+            Assert.Same(documents, result);
+        }
+
+        [Fact]
+        public void AddFromBaseDirectory_Generic_ShouldAddDocument_WhenMatchingXmlFileExistsInBaseDirectory()
+        {
+            var documents = new List<XPathDocument>();
+
+            var result = documents.AddFromBaseDirectory<XPathDocumentExtensionsTest>();
+
+            Assert.Same(documents, result);
+            Assert.NotEmpty(documents);
+        }
+
+        [Fact]
+        public void AddFromReferencePacks_Generic_ShouldReturnSameListReference()
+        {
+            var documents = new List<XPathDocument>();
+
+            var result = documents.AddFromReferencePacks<ProblemDetails>();
+
+            Assert.Same(documents, result);
+        }
+
+        [Fact]
+        public void AddFromReferencePacks_Generic_ShouldAddDocument_WhenRefPackXmlExistsForType()
+        {
+            var documents = new List<XPathDocument>();
+
+            var result = documents.AddFromReferencePacks<ProblemDetails>();
+
+            Assert.Same(documents, result);
+            Assert.NotEmpty(documents);
         }
     }
 }

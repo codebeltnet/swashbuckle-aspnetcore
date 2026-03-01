@@ -42,7 +42,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                        {
                            o.Settings.UseAllOfToExtendReferenceSchemas();
                            o.XmlDocumentations.AddFromBaseDirectory(typeof(FakeModel));
-                           o.XmlDocumentations.AddFromNuGetPackages(typeof(Token));
+                           o.XmlDocumentations.AddFromBaseDirectory(typeof(Token));
                            o.XmlDocumentations.AddFromReferencePacks(typeof(ProblemDetails));
                        });
                        services.AddFaultDescriptorOptions(o =>
@@ -97,9 +97,9 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                        services.AddRestfulSwagger(o =>
                        {
                            o.Settings.UseAllOfToExtendReferenceSchemas();
-                           o.XmlDocumentations.AddFromBaseDirectory(typeof(FakeModel));
-                           o.XmlDocumentations.AddFromNuGetPackages(typeof(Token));
-                           o.XmlDocumentations.AddFromReferencePacks(typeof(ProblemDetails));
+                           o.XmlDocumentations.AddFromBaseDirectory<FakeModel>();
+                           o.XmlDocumentations.AddFromBaseDirectory<Token>();
+                           o.XmlDocumentations.AddFromReferencePacks<ProblemDetails>();
                        });
                        services.AddFaultDescriptorOptions(o =>
                            o.FaultDescriptor = PreferredFaultDescriptor.ProblemDetails);
