@@ -8,6 +8,12 @@
     </PropertyGroup>
   </Target>
 
+  <Target Name="_ResolveCopyLocalNuGetPkgXmls" AfterTargets="ResolveReferences" Condition="'$(IsTestProject)' == 'true'">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)'!='' and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
+    </ItemGroup>
+  </Target>
+
   <Target Name="ApplyFileVersion" AfterTargets="MinVer">
     <PropertyGroup>
       <GITHUB_RUN_NUMBER Condition="'$(GITHUB_RUN_NUMBER)' == ''">0</GITHUB_RUN_NUMBER>
