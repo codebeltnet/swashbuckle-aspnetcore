@@ -7,9 +7,13 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
-## [10.0.4] - 2026-02-28
+## [10.1.0] - 2026-03-01
 
-This is a service update that focuses on package dependencies.
+This is a minor release that focuses on XML documentation loading reliability and package dependencies.
+
+### Added
+
+- `XPathDocumentExtensions` class in the Cuemon.Extensions.Swashbuckle.AspNetCore namespace with several new extension methods for the `IList<XPathDocument>` class: `AddByType<T>`, `AddFromBaseDirectory`, `AddFromBaseDirectory<T>`, `AddFromReferencePacks` and `AddFromReferencePacks<T>`
 
 ## [10.0.3] - 2026-02-21
 
@@ -17,7 +21,7 @@ This is a service update that focuses on package dependencies.
 
 ### Fixed
 
-- 'AddRestfulSwagger' extension method on the ServiceCollectionExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace was fixed to only be invoked once on bootstrapping
+- `AddRestfulSwagger` extension method on the `ServiceCollectionExtensions` class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace was fixed to only be invoked once on bootstrapping
 
 
 ## [10.0.2] - 2026-02-15
