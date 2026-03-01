@@ -1,8 +1,11 @@
-Version: 10.0.4
+Version: 10.1.0
 Availability: .NET 10 and .NET 9
  
 # ALM
 - CHANGED Dependencies have been upgraded to the latest compatible versions for all supported target frameworks (TFMs)
+ 
+# New Features
+- EXTENDED XPathDocumentExtensions class in the Cuemon.Extensions.Swashbuckle.AspNetCore namespace with several new extension methods for the IList<XPathDocument> class: AddByType<T>, AddFromBaseDirectory, AddFromBaseDirectory<T>, AddFromReferencePacks and AddFromReferencePacks<T>
  
 Version: 10.0.3
 Availability: .NET 10 and .NET 9
@@ -11,7 +14,7 @@ Availability: .NET 10 and .NET 9
 - CHANGED Dependencies have been upgraded to the latest compatible versions for all supported target frameworks (TFMs)
  
 # Bug Fixes
-- FIXED 'AddRestfulSwagger' extension method on the ServiceCollectionExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace to only be invoked once on bootstrapping
+- FIXED AddRestfulSwagger extension method on the ServiceCollectionExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace to only be invoked once on bootstrapping
  
 Version: 10.0.2
 Availability: .NET 10 and .NET 9
