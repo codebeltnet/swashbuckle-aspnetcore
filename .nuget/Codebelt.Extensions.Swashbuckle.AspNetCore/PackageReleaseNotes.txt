@@ -1,21 +1,21 @@
 Version: 10.1.0
 Availability: .NET 10 and .NET 9
- 
+ 
 # ALM
 - CHANGED Dependencies have been upgraded to the latest compatible versions for all supported target frameworks (TFMs)
- 
+ 
 # New Features
-- EXTENDED XPathDocumentExtensions class in the Cuemon.Extensions.Swashbuckle.AspNetCore namespace with several new extension methods for the IList<XPathDocument> class: AddByType<T>, AddFromBaseDirectory, AddFromBaseDirectory<T>, AddFromReferencePacks and AddFromReferencePacks<T>
- 
+- EXTENDED XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace with several new extension methods for the IList<XPathDocument> class: AddByType<T>, AddFromBaseDirectory, AddFromBaseDirectory<T>, AddFromReferencePacks and AddFromReferencePacks<T>
+ 
 Version: 10.0.3
 Availability: .NET 10 and .NET 9
- 
+ 
 # ALM
 - CHANGED Dependencies have been upgraded to the latest compatible versions for all supported target frameworks (TFMs)
  
 # Bug Fixes
 - FIXED AddRestfulSwagger extension method on the ServiceCollectionExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace to only be invoked once on bootstrapping
- 
+ 
 Version: 10.0.2
 Availability: .NET 10 and .NET 9
  
@@ -117,11 +117,11 @@ Availability: .NET 8, .NET 7 and .NET 6
 - CHANGED Dependencies to latest and greatest with respect to TFMs
  
 # New Features
-- EXTENDED SwaggerGenOptionsExtensions class in the Cuemon.Extensions.Swashbuckle.AspNetCore namespace with one new extension method for the SwaggerGenOptions class: AddBasicAuthenticationSecurity
+- EXTENDED SwaggerGenOptionsExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace with one new extension method for the SwaggerGenOptions class: AddBasicAuthenticationSecurity
  
 # Improvements
-- CHANGED RestfulSwaggerOptions class in the Cuemon.Extensions.Swashbuckle.AspNetCore namespace to include a function delegate property named JsonSerializerOptionsFactory that will resolve a JsonSerializerOptions instance in a more flexible way than provided by the Swagger team
-- CHANGED ServiceCollectionExtensions class in the Cuemon.Extensions.Swashbuckle.AspNetCore namespace to support JsonSerializerOptionsFactory in the AddRestfulSwagger extension method
+- CHANGED RestfulSwaggerOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace to include a function delegate property named JsonSerializerOptionsFactory that will resolve a JsonSerializerOptions instance in a more flexible way than provided by the Swagger team
+- CHANGED ServiceCollectionExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace to support JsonSerializerOptionsFactory in the AddRestfulSwagger extension method
  
 Version: 8.1.0
 Availability: .NET 8, .NET 7 and .NET 6
@@ -142,5 +142,5 @@ Availability: .NET 8, .NET 7 and .NET 6
 - CHANGED Dependencies to latest and greatest with respect to TFMs
  
 # Quality Analysis Actions
-- CHANGED SwaggerGenOptionsExtensions class in the Cuemon.Extensions.Swashbuckle.AspNetCore namespace to be compliant with https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1825
+- CHANGED SwaggerGenOptionsExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace to be compliant with https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1825
  

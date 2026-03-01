@@ -13,7 +13,7 @@ This is a minor release that focuses on XML documentation loading reliability an
 
 ### Added
 
-- `XPathDocumentExtensions` class in the Cuemon.Extensions.Swashbuckle.AspNetCore namespace with several new extension methods for the `IList<XPathDocument>` class: `AddByType<T>`, `AddFromBaseDirectory`, `AddFromBaseDirectory<T>`, `AddFromReferencePacks` and `AddFromReferencePacks<T>`
+- `XPathDocumentExtensions` class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace with several new extension methods for the `IList<XPathDocument>` class: `AddByType<T>`, `AddFromBaseDirectory`, `AddFromBaseDirectory<T>`, `AddFromReferencePacks` and `AddFromReferencePacks<T>`
 
 ## [10.0.3] - 2026-02-21
 
