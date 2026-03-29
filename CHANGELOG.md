@@ -7,6 +7,24 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [10.1.1] - 2026-03-29
+
+This is a patch release focused on dependency upgrades across all supported target frameworks, a build-system simplification for package release notes, and minor CI pipeline and tooling improvements.
+
+### Changed
+
+- `Swashbuckle.AspNetCore` dependency upgraded from 10.1.4 to 10.1.7,
+- `Microsoft.AspNetCore.OpenApi` dependency upgraded from 10.0.3 to 10.0.5,
+- `Codebelt.Bootstrapper.Web` dependency upgraded from 5.0.4 to 5.0.5,
+- `Codebelt.Extensions.Asp.Versioning` dependency upgraded from 10.0.4 to 10.0.5,
+- `Codebelt.Extensions.Xunit.App` dependency upgraded from 11.0.7 to 11.0.8,
+- `Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json` dependency upgraded from 10.4.0 to 10.5.0,
+- `coverlet.collector` and `coverlet.msbuild` dependencies upgraded from 8.0.0 to 8.0.1,
+- `Directory.Build.targets` simplified `PackageReleaseNotes` injection to use `File.ReadAllText` instead of line-by-line reading,
+- test environments updated to use versioned Docker image tags (`ubuntu-testrunner:9` and `ubuntu-testrunner:10`) with explicit net9/net10 environment names,
+- service-update workflow corrected blank-line formatting in the release-notes entry template,
+- `bump-nuget.py` script extended with the `carter` repository-to-package mapping.
+
 ## [10.1.0] - 2026-03-01
 
 This is a minor release that focuses on XML documentation loading reliability and package dependencies.
@@ -121,3 +139,25 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentFilter class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides a User-Agent field to the generated OpenApiDocument
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
+
+[Unreleased]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.1.1...HEAD
+[10.1.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.1.0...v10.1.1
+[10.1.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.0.3...v10.1.0
+[10.0.3]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.0.2...v10.0.3
+[10.0.2]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.0.1...v10.0.2
+[10.0.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.0.0...v10.0.1
+[10.0.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v9.0.8...v10.0.0
+[9.0.8]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v9.0.7...v9.0.8
+[9.0.7]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v9.0.6...v9.0.7
+[9.0.6]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v9.0.5...v9.0.6
+[9.0.5]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v9.0.4...v9.0.5
+[9.0.4]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v9.0.3...v9.0.4
+[9.0.3]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v9.0.2...v9.0.3
+[9.0.2]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v9.0.1...v9.0.2
+[9.0.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v9.0.0...v9.0.1
+[9.0.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v8.4.0...v9.0.0
+[8.4.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v8.3.2...v8.4.0
+[8.3.2]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v8.3.1...v8.3.2
+[8.3.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v8.2.0...v8.3.1
+[8.2.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v7.0.0...v8.2.0
+[7.0.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/releases/tag/v7.0.0
