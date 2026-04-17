@@ -7,6 +7,23 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [10.2.0] - 2026-04-18
+
+This is a minor release focused on Model Context Protocol (MCP) support and integration into the Swagger/OpenAPI generation pipeline.
+
+### Added
+
+- `Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol` as a new extension package for documenting MCP endpoints in generated OpenAPI documents,
+- `McpDocumentFilter` class in the Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol namespace that injects the MCP Streamable HTTP transport endpoint (and optionally legacy SSE endpoints) into the generated OpenAPI document,
+- `McpDocumentOptions` class in the Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol namespace that defines configuration options for the `McpDocumentFilter` class,
+- `SwaggerGenOptionsExtensions` class in the Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol namespace with extension method `AddMcpServer` for streamlined MCP configuration,
+- unit tests and functional tests for MCP document filtering and configuration.
+
+### Changed
+
+- `ModelContextProtocol` package dependency added (version 1.2.0),
+- example application updated to demonstrate MCP integration with the new extension.
+
 ## [10.1.1] - 2026-03-29
 
 This is a patch release focused on dependency upgrades across all supported target frameworks, a build-system simplification for package release notes, and minor CI pipeline and tooling improvements.
@@ -140,7 +157,8 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
-[Unreleased]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.1.1...HEAD
+[Unreleased]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.0...HEAD
+[10.2.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.1.1...v10.2.0
 [10.1.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.1.0...v10.1.1
 [10.1.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.0.3...v10.1.0
 [10.0.3]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.0.2...v10.0.3
