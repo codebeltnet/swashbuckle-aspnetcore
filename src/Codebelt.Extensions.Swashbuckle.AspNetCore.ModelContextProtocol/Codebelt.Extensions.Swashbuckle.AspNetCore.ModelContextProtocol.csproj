@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>The Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol namespace contains types and extension methods that complements the Swashbuckle.AspNetCore namespace by adding support for documenting Model Context Protocol (MCP) endpoints in generated OpenAPI documents.</Description>
+    <PackageTags>extension-methods extensions document-filter mcp model-context-protocol streamable-http sse openapi swagger</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Codebelt.Extensions.Swashbuckle.AspNetCore\Codebelt.Extensions.Swashbuckle.AspNetCore.csproj" />
+  </ItemGroup>
+
+</Project>
