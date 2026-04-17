@@ -1,0 +1,10 @@
+Version: 10.2.0
+Availability: .NET 10 and .NET 9
+
+# ALM
+- CHANGED Dependencies have been upgraded to the latest compatible versions for all supported target frameworks (TFMs)
+
+# New Features
+- ADDED McpDocumentFilter class in the Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol namespace that injects the MCP Streamable HTTP transport endpoint (and optionally the legacy SSE endpoints) into the generated OpenAPI document
+- ADDED McpDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol namespace that defines options for the McpDocumentFilter class
+- ADDED SwaggerGenOptionsExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol namespace with an extension method for the SwaggerGenOptions class: AddMcpServer

@@ -1,4 +1,5 @@
 using Codebelt.Bootstrapper.Web;
+using Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol;
 using Cuemon.Extensions.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,7 @@ namespace WebApiExample
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = nameof(WebApiExample), Version = "v1" });
+                c.AddMcpServer();
             });
         }
 

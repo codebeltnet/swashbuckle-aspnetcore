@@ -1,9 +1,12 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol/Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol.csproj" />
     <Project Path="src/Codebelt.Extensions.Swashbuckle.AspNetCore/Codebelt.Extensions.Swashbuckle.AspNetCore.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/Codebelt.Extensions.Swashbuckle.AspNetCore.FunctionalTests/Codebelt.Extensions.Swashbuckle.AspNetCore.FunctionalTests.csproj" />
+    <Project Path="test/Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol.FunctionalTests/Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol.FunctionalTests.csproj" />
+    <Project Path="test/Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol.Tests/Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol.Tests.csproj" />
     <Project Path="test/Codebelt.Extensions.Swashbuckle.AspNetCore.Tests/Codebelt.Extensions.Swashbuckle.AspNetCore.Tests.csproj" />
   </Folder>
   <Folder Name="/tooling/">

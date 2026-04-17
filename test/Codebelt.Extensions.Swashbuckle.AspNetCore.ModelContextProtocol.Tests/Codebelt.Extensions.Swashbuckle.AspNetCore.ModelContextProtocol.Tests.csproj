@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol</RootNamespace>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol\Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol.csproj" />
+  </ItemGroup>
+
+</Project>

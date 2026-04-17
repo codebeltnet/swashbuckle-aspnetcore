@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol\Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol.csproj" />
     <ProjectReference Include="..\..\src\Codebelt.Extensions.Swashbuckle.AspNetCore\Codebelt.Extensions.Swashbuckle.AspNetCore.csproj" />
   </ItemGroup>
 
