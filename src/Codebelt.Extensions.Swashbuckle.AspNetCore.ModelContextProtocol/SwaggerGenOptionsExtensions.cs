@@ -16,7 +16,8 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
         /// <param name="options">The <see cref="SwaggerGenOptions"/> to extend.</param>
         /// <param name="setup">The <see cref="McpDocumentOptions"/> that may be configured.</param>
         public static void AddMcpServer(this SwaggerGenOptions options, Action<McpDocumentOptions> setup = null)
-        {
+        {
+
             Validator.ThrowIfNull(options);
             Validator.ThrowIfInvalidConfigurator(setup, out var mcpOptions);
             options.AddDocumentFilterInstance(new McpDocumentFilter(mcpOptions));

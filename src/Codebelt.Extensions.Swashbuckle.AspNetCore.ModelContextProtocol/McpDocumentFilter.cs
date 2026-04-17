@@ -1,3 +1,7 @@
+using Cuemon.Reflection;
+using Microsoft.OpenApi;
+using ModelContextProtocol.Server;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,9 +11,6 @@ using System.Reflection;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Microsoft.OpenApi;
-using ModelContextProtocol.Server;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol;
 
@@ -61,10 +62,9 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
 
     private IReadOnlyList<McpToolInfo> DiscoverTools()
     {
-        var types = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => !a.IsDynamic)
-            .SelectMany(GetAssemblyTypes)
-            .Where(t => t.GetCustomAttribute<McpServerToolTypeAttribute>() != null);
+        var types = AssemblyContext.GetCurrentDomainAssemblies(o =>
+                o.AssemblyFilter = a => !a.IsDynamic && a.GetCustomAttribute<McpServerToolTypeAttribute>() != null)
+            .SelectMany(GetAssemblyTypes);
 
         var tools = new List<McpToolInfo>();
         foreach (var type in types)
