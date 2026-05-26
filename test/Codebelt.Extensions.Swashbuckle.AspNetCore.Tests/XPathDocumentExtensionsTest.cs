@@ -269,6 +269,28 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
         }
 
         [Fact]
+        public void AddFromReferencePacks_ShouldFallBackToCoreLibraryPath_WhenDotnetRootDoesNotExist()
+        {
+            var originalDotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT");
+            var invalidDotnetRoot = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            var documents = new List<XPathDocument>();
+
+            try
+            {
+                Environment.SetEnvironmentVariable("DOTNET_ROOT", invalidDotnetRoot);
+
+                var result = documents.AddFromReferencePacks(typeof(JsonSerializer));
+
+                Assert.Same(documents, result);
+                Assert.NotEmpty(documents);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("DOTNET_ROOT", originalDotnetRoot);
+            }
+        }
+
+        [Fact]
         public void AddByType_Generic_ShouldAddDocument_WhenXmlFileExistsForType()
         {
             var documents = new List<XPathDocument>();
