@@ -7,6 +7,27 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [10.2.1] - 2026-05-26
+
+This is a patch release that focuses on package dependencies, CI infrastructure improvements, test coverage expansion, and code guidance refinements.
+
+### Changed
+
+- `Microsoft.AspNetCore.OpenApi` dependency upgraded from 10.0.6 to 10.0.8,
+- `Microsoft.NET.Test.Sdk` dependency upgraded from 18.4.0 to 18.6.0,
+- `ModelContextProtocol` dependency upgraded from 1.2.0 to 1.3.0,
+- `coverlet.collector` dependency upgraded from 10.0.0 to 10.0.1,
+- `coverlet.msbuild` dependency upgraded from 10.0.0 to 10.0.1,
+- Nginx base image in DocFX Dockerfile upgraded to version 1.31.0,
+- Refactored `McpDocumentFilter` tool discovery logic to separate assembly filtering from attribute filtering for improved clarity and maintainability.
+
+### Added
+
+- MacOS test matrix to CI pipeline supporting both ARM64 and X64 architectures,
+- Comprehensive unit tests for the `McpDocumentFilter` class,
+- Additional test coverage for the `XPathDocumentExtensions` class,
+- Guidance in copilot-instructions.md prohibiting use of `ExcludeFromCodeCoverage` attribute in code.
+
 ## [10.2.0] - 2026-04-18
 
 This is a minor release focused on Model Context Protocol (MCP) support and integration into the Swagger/OpenAPI generation pipeline.
@@ -157,7 +178,8 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
-[Unreleased]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.0...HEAD
+[Unreleased]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.1...HEAD
+[10.2.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.0...v10.2.1
 [10.2.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.1.1...v10.2.0
 [10.1.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.1.0...v10.1.1
 [10.1.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.0.3...v10.1.0

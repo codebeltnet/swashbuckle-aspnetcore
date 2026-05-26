@@ -1,3 +1,12 @@
+Version: 10.2.1
+Availability: .NET 10 and .NET 9
+
+# ALM
+- CHANGED Dependencies have been upgraded to the latest compatible versions for all supported target frameworks (TFMs)
+
+# Improvements
+- REFACTORED McpDocumentFilter tool discovery logic to separate assembly filtering from type attribute filtering for improved clarity and maintainability.
+
 Version: 10.2.0
 Availability: .NET 10 and .NET 9
 

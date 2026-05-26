@@ -63,8 +63,9 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
     private IReadOnlyList<McpToolInfo> DiscoverTools()
     {
         var types = AssemblyContext.GetCurrentDomainAssemblies(o =>
-                o.AssemblyFilter = a => !a.IsDynamic && a.GetCustomAttribute<McpServerToolTypeAttribute>() != null)
-            .SelectMany(GetAssemblyTypes);
+                o.AssemblyFilter = a => !a.IsDynamic)
+            .SelectMany(GetAssemblyTypes)
+            .Where(t => t.GetCustomAttribute<McpServerToolTypeAttribute>() != null);
 
         var tools = new List<McpToolInfo>();
         foreach (var type in types)
