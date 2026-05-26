@@ -7,7 +7,7 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
-## [10.2.1] - 2026-05-23
+## [10.2.1] - 2026-05-26
 
 This is a service update that focuses on package dependencies.
 
@@ -161,7 +161,8 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
-[Unreleased]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.0...HEAD
+[Unreleased]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.1...HEAD
+[10.2.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.0...v10.2.1
 [10.2.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.1.1...v10.2.0
 [10.1.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.1.0...v10.1.1
 [10.1.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.0.3...v10.1.0
