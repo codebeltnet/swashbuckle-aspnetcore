@@ -101,10 +101,27 @@ jobs:
       build: true # needed by xunitv3 due to executable requirement
       download-pattern: build-${{ matrix.configuration }}-${{ matrix.arch }}
 
+  test_mac:
+    name: call-test-mac
+    needs: [build]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [X64, ARM64]
+        configuration: [Debug, Release]
+    uses: codebeltnet/jobs-dotnet-test/.github/workflows/default.yml@v3
+    with:
+      runs-on: ${{ matrix.arch == 'ARM64' && 'macos-26' || 'macos-26-intel' }}
+      configuration: ${{ matrix.configuration }}
+      build-switches: -p:SkipSignAssembly=true
+      restore: true
+      build: true # needed for xunitv3
+      download-pattern: build-${{ matrix.configuration }}-${{ matrix.arch }}
+
   sonarcloud:
     if: ${{ needs.init.outputs.run-privileged-jobs == 'true' }}
     name: call-sonarcloud
-    needs: [init, build, test_linux, test_windows]
+    needs: [init, build, test_linux, test_windows, test_mac]
     uses: codebeltnet/jobs-sonarcloud/.github/workflows/default.yml@v3
     with:
       organization: geekle
@@ -115,7 +132,7 @@ jobs:
   codecov:
     if: ${{ needs.init.outputs.run-privileged-jobs == 'true' }}
     name: call-codecov
-    needs: [init, build, test_linux, test_windows]
+    needs: [init, build, test_linux, test_windows, test_mac]
     uses: codebeltnet/jobs-codecov/.github/workflows/default.yml@v1
     with:
       repository: codebeltnet/swashbuckle-aspnetcore
@@ -124,7 +141,7 @@ jobs:
   codeql:
     if: ${{ needs.init.outputs.run-privileged-jobs == 'true' }}
     name: call-codeql
-    needs: [init, build, test_linux, test_windows]
+    needs: [init, build, test_linux, test_windows, test_mac]
     uses: codebeltnet/jobs-codeql/.github/workflows/default.yml@v3
     permissions:
       security-events: write
@@ -132,7 +149,7 @@ jobs:
   deploy:
     if: github.event_name != 'pull_request'
     name: call-nuget
-    needs: [build, pack, test_linux, test_windows, sonarcloud, codecov, codeql]
+    needs: [build, pack, test_linux, test_windows, test_mac, sonarcloud, codecov, codeql]
     uses: codebeltnet/jobs-nuget-push/.github/workflows/default.yml@v3
     with:
       version: ${{ needs.build.outputs.version }}
