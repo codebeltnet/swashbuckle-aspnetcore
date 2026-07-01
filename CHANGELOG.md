@@ -7,6 +7,32 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [10.2.3] - 2026-07-01
+
+This is a patch release focused on API documentation standards, dependency upgrades, and CI/CD reliability improvements. The release establishes formal DocFX documentation requirements for all public APIs with namespace overview pages and per-type usage examples, upgrades infrastructure dependencies, and fixes CI pipeline handling of optional matrix jobs.
+
+### Added
+
+- Complete DocFX API documentation for both `Codebelt.Extensions.Swashbuckle.AspNetCore` and `Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol` namespaces with namespace overview pages and per-type overwrite files,
+- Usage examples and extension-member tables for all public API types,
+- Comprehensive DocFX documentation maintenance guidance in `AGENTS.md` specifying public API documentation requirements, validation rules, and documentation verification procedures.
+
+### Changed
+
+- `Codebelt.Bootstrapper.Web` dependency upgraded from 5.1.0 to 5.1.1,
+- `Codebelt.Extensions.Asp.Versioning` dependency upgraded from 10.0.8 to 10.0.9,
+- `Codebelt.Extensions.Xunit.App` dependency upgraded from 11.1.0 to 11.1.1,
+- `Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json` dependency upgraded from 10.5.3 to 10.5.4,
+- `Microsoft.AspNetCore.OpenApi` dependency upgraded from 10.0.8 to 10.0.9,
+- `Microsoft.NET.Test.Sdk` dependency upgraded from 18.6.0 to 18.7.0,
+- `Swashbuckle.AspNetCore` dependency upgraded from 10.2.1 to 10.2.3,
+- `DocFX` configuration updated to support namespace and type overwrite files in separate subdirectories,
+- NGINX base image in DocFX Dockerfile upgraded from 1.31.0-alpine to 1.31.2-alpine.
+
+### Fixed
+
+- CI pipeline deploy job condition now correctly handles optional jobs by using `always()` and explicit success checks instead of simple dependency tracking, preventing skipped optional matrix jobs from suppressing deployment.
+
 ## [10.2.2] - 2026-06-06
 
 This is a service update that focuses on package dependencies.
@@ -182,7 +208,9 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
-[Unreleased]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.1...HEAD
+[Unreleased]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.3...HEAD
+[10.2.3]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.2...v10.2.3
+[10.2.2]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.1...v10.2.2
 [10.2.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.0...v10.2.1
 [10.2.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.1.1...v10.2.0
 [10.1.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.1.0...v10.1.1
