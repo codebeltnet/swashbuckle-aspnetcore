@@ -7,6 +7,10 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [10.2.4] - 2026-07-03
+
+This is a service update that focuses on package dependencies.
+
 ## [10.2.3] - 2026-07-01
 
 This is a patch release focused on API documentation standards, dependency upgrades, and CI/CD reliability improvements. The release establishes formal DocFX documentation requirements for all public APIs with namespace overview pages and per-type usage examples, upgrades infrastructure dependencies, and fixes CI pipeline handling of optional matrix jobs.
