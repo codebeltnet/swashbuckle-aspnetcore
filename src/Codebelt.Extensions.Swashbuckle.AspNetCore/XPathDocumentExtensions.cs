@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 using System.Xml.XPath;
 using Cuemon;
 using Cuemon.Reflection;
@@ -63,7 +64,15 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
             Validator.ThrowIfNullOrWhitespace(path);
             if (File.Exists(path))
             {
-                documents.Add(new XPathDocument(path));
+                var settings = new XmlReaderSettings
+                {
+                    DtdProcessing = DtdProcessing.Prohibit,
+                    XmlResolver = null
+                };
+                using (var reader = XmlReader.Create(path, settings))
+                {
+                    documents.Add(new XPathDocument(reader));
+                }
             }
             return documents;
         }
@@ -188,12 +197,9 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
             while (current != null)
             {
                 var assembly = current.Assembly;
-                if (!assembly.IsDynamic && !string.IsNullOrWhiteSpace(assembly.Location))
+                if (!assembly.IsDynamic && !string.IsNullOrWhiteSpace(assembly.Location) && seen.Add(assembly.GetName().FullName))
                 {
-                    if (seen.Add(assembly.GetName().FullName))
-                    {
-                        yield return assembly;
-                    }
+                    yield return assembly;
                 }
                 current = current.BaseType;
             }

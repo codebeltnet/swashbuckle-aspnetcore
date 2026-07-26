@@ -48,7 +48,7 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
             });
         }
 
-        var tools = Options.IncludeTools ? DiscoverTools() : null;
+        var tools = Options.IncludeTools ? McpDocumentFilter.DiscoverTools() : null;
 
         swaggerDoc.Paths ??= new OpenApiPaths();
         swaggerDoc.Paths.Add(Options.Pattern, CreateStreamableHttpPathItem(swaggerDoc, tools));
@@ -60,7 +60,7 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
         }
     }
 
-    private IReadOnlyList<McpToolInfo> DiscoverTools()
+    private static List<McpToolInfo> DiscoverTools()
     {
         var types = AssemblyContext.GetCurrentDomainAssemblies(o =>
                 o.AssemblyFilter = a => !a.IsDynamic)
@@ -78,14 +78,14 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
                 var toolDescription = method.GetCustomAttribute<DescriptionAttribute>()?.Description;
                 var parameters = method.GetParameters()
                     .Where(p => p.ParameterType != typeof(CancellationToken) &&
-                               p.ParameterType.FullName?.StartsWith("ModelContextProtocol") != true)
+                               p.ParameterType.FullName?.StartsWith("ModelContextProtocol", StringComparison.Ordinal) != true)
                     .Select(p => (ParamName: p.Name!, ParamType: p.ParameterType))
                     .ToList();
                 tools.Add(new McpToolInfo(toolName, toolDescription, parameters));
             }
         }
 
-        return tools.Count > 0 ? tools : null;
+        return tools;
     }
 
     private static IEnumerable<Type> GetAssemblyTypes(Assembly assembly)
@@ -95,7 +95,7 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
         catch { return Array.Empty<Type>(); }
     }
 
-    private JsonObject BuildExampleBody(McpToolInfo tool)
+    private static JsonObject BuildExampleBody(McpToolInfo tool)
     {
         var paramsObject = new JsonObject { ["name"] = JsonValue.Create(tool.Name) };
         if (tool.Parameters.Count > 0)
@@ -127,7 +127,7 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
     private static string ToSnakeCaseName(string name) =>
         Regex.Replace(name, "([a-z0-9])([A-Z])", "$1_$2").ToLowerInvariant();
 
-    private string BuildStreamableHttpDescription(IReadOnlyList<McpToolInfo> tools)
+    private static string BuildStreamableHttpDescription(IReadOnlyList<McpToolInfo> tools)
     {
         var description = """
             Bidirectional JSON-RPC 2.0 endpoint following the
@@ -175,7 +175,7 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
         if (tools?.Count > 0)
             requestMediaType.Examples = tools.ToDictionary(
                 t => t.Name,
-                t => (IOpenApiExample)new OpenApiExample { Summary = t.Name, Value = BuildExampleBody(t) }
+                t => (IOpenApiExample)new OpenApiExample { Summary = t.Name, Value = McpDocumentFilter.BuildExampleBody(t) }
             );
 
         return new OpenApiPathItem
@@ -186,7 +186,7 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
                 {
                     Tags = new HashSet<OpenApiTagReference> { new OpenApiTagReference(Options.TagName, swaggerDoc, null) },
                     Summary = "Streamable HTTP",
-                    Description = BuildStreamableHttpDescription(tools),
+                    Description = McpDocumentFilter.BuildStreamableHttpDescription(tools),
                     OperationId = "mcp",
                     RequestBody = new OpenApiRequestBody
                     {
