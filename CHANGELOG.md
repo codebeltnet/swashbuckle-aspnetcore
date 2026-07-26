@@ -7,6 +7,29 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [10.2.4] - 2026-07-26
+
+This is a patch release focused on dependency upgrades, security hardening, and code quality improvements. All Codebelt and Microsoft dependencies have been upgraded to their latest compatible versions, build infrastructure enhancements include latest .NET analyzers and code style enforcement, and critical security improvements mitigate XXE vulnerability vectors in XML document processing.
+
+### Changed
+
+- `Codebelt.Bootstrapper.Web` dependency upgraded from 5.1.1 to 5.1.2,
+- `Codebelt.Extensions.Asp.Versioning` dependency upgraded from 10.0.9 to 10.2.2,
+- `Codebelt.Extensions.Xunit.App` dependency upgraded from 11.1.1 to 11.1.2,
+- `Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json` dependency upgraded from 10.5.4 to 10.5.5,
+- `Microsoft.AspNetCore.OpenApi` dependency upgraded from 10.0.9 to 10.0.10,
+- `Microsoft.NET.Test.Sdk` dependency upgraded from 18.7.0 to 18.8.1,
+- `ModelContextProtocol` dependency upgraded from 1.4.0 to 1.4.1,
+- Build configuration enhanced with latest .NET code analyzers (`EnableNETAnalyzers`), analysis level set to `latest`, and code style enforcement enabled in build process,
+- `XPathDocumentExtensions` refactored with security-hardened `XmlReaderSettings` to prohibit DTD processing and remove XML resolver, mitigating XXE (XML External Entity) attack vectors,
+- `McpDocumentFilter` refactored to use static helper methods (`DiscoverTools`, `BuildExampleBody`, `BuildStreamableHttpDescription`) for improved code organization and memory efficiency,
+- `McpDocumentFilter` string comparison operations updated to use `StringComparison.Ordinal` for deterministic and culture-invariant behavior,
+- NGINX base image in DocFX Dockerfile simplified for improved stability.
+
+### Removed
+
+- `GlobalSuppressions.cs` in the `Codebelt.Extensions.Swashbuckle.AspNetCore` namespace removed as code quality improvements eliminated the need for diagnostic suppressions.
+
 ## [10.2.3] - 2026-07-01
 
 This is a patch release focused on API documentation standards, dependency upgrades, and CI/CD reliability improvements. The release establishes formal DocFX documentation requirements for all public APIs with namespace overview pages and per-type usage examples, upgrades infrastructure dependencies, and fixes CI pipeline handling of optional matrix jobs.
@@ -208,7 +231,7 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
-[Unreleased]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.3...HEAD
+[10.2.4]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.3...v10.2.4
 [10.2.3]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.2...v10.2.3
 [10.2.2]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.1...v10.2.2
 [10.2.1]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.0...v10.2.1
