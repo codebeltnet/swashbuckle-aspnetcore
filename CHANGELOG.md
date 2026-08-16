@@ -7,6 +7,10 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [10.2.5] - 2026-08-16
+
+This is a service update that focuses on package dependencies.
+
 ## [10.2.4] - 2026-07-26
 
 This is a patch release focused on dependency upgrades, security hardening, and code quality improvements. All Codebelt and Microsoft dependencies have been upgraded to their latest compatible versions, build infrastructure enhancements include latest .NET analyzers and code style enforcement, and critical security improvements mitigate XXE vulnerability vectors in XML document processing.
