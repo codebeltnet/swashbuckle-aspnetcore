@@ -7,9 +7,25 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
-## [10.2.5] - 2026-08-16
+## [10.2.5] - 2026-08-17
 
-This is a service update that focuses on package dependencies.
+This is a patch release focused on dependency upgrades, test infrastructure simplification, and repository configuration standards. All Codebelt and Microsoft dependencies have been updated to their latest compatible versions, the test matrix has been consolidated to a multi-version Docker runner, and new repository configuration files establish code style and line-ending standards across the team.
+
+### Added
+
+- `.editorconfig` configuration to enforce consistent code style across the team using EditorConfig standards,
+- `.gitattributes` configuration to normalize line endings across platforms and ensure consistent git behavior for cross-platform development.
+
+### Changed
+
+- `Codebelt.Bootstrapper.Web` dependency upgraded from 5.1.2 to 5.2.0,
+- `Codebelt.Extensions.Asp.Versioning` dependency upgraded from 10.2.2 to 10.2.3,
+- `Codebelt.Extensions.Xunit.App` dependency upgraded from 11.1.2 to 11.2.1,
+- `Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json` dependency upgraded from 10.5.5 to 10.7.0,
+- `Microsoft.AspNetCore.OpenApi` dependency upgraded from 10.0.10 to 10.0.11,
+- `Microsoft.NET.Test.Sdk` dependency upgraded from 18.8.1 to 18.9.0,
+- `ModelContextProtocol` dependency upgraded from 1.4.1 to 2.2.0,
+- Test environments consolidated from separate Docker runners for each .NET version to a single multi-version image (`codebeltnet/ubuntu-testrunner:8-9-10-11`), reducing configuration complexity while improving test coverage.
 
 ## [10.2.4] - 2026-07-26
 
@@ -235,6 +251,7 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
+[10.2.5]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.4...v10.2.5
 [10.2.4]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.3...v10.2.4
 [10.2.3]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.2...v10.2.3
 [10.2.2]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.1...v10.2.2
