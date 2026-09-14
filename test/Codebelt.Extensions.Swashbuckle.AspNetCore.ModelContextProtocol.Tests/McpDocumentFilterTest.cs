@@ -159,6 +159,26 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             Assert.Contains(System.Net.Http.HttpMethod.Delete, doc.Paths["/mcp"].Operations.Keys);
         }
 
+        [Theory]
+        [InlineData(HttpServerSessionMode.Stateful)]
+        [InlineData(HttpServerSessionMode.StatefulForInitializeClients)]
+        public void Apply_ShouldDocumentSessionIdHeader_ForStatefulStreamableHttpOperations(HttpServerSessionMode sessionMode)
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions { SessionMode = sessionMode });
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            var pathItem = doc.Paths["/mcp"];
+            var postParameters = pathItem.Operations[HttpMethod.Post].Parameters;
+            var getParameters = pathItem.Operations[HttpMethod.Get].Parameters;
+            var deleteParameters = pathItem.Operations[HttpMethod.Delete].Parameters;
+
+            Assert.Contains(postParameters, p => p.Name == "Mcp-Session-Id" && !p.Required);
+            Assert.Contains(getParameters, p => p.Name == "Mcp-Session-Id" && p.Required);
+            Assert.Contains(deleteParameters, p => p.Name == "Mcp-Session-Id" && p.Required);
+        }
+
         [Fact]
         public void Apply_ShouldRejectLegacySse_WhenStateless()
         {
@@ -212,8 +232,30 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             var requestSchema = Assert.IsType<OpenApiSchema>(operation.RequestBody.Content["application/json"].Schema);
             var parametersSchema = Assert.IsType<OpenApiSchema>(requestSchema.Properties["params"]);
             var metadataSchema = Assert.IsType<OpenApiSchema>(parametersSchema.Properties["_meta"]);
+            Assert.Contains("params", requestSchema.Required);
+            Assert.Contains("_meta", parametersSchema.Required);
             Assert.Contains("io.modelcontextprotocol/protocolVersion", metadataSchema.Required);
             Assert.Contains("io.modelcontextprotocol/clientCapabilities", metadataSchema.Required);
+        }
+
+        [Fact]
+        public void Apply_ShouldKeepLegacySseRequestParametersOptional()
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions
+            {
+                EnableLegacySse = true,
+                SessionMode = HttpServerSessionMode.Stateful
+            });
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            var requestSchema = Assert.IsType<OpenApiSchema>(doc.Paths["/mcp/message"].Operations[HttpMethod.Post]
+                .RequestBody.Content["application/json"].Schema);
+            var parametersSchema = Assert.IsType<OpenApiSchema>(requestSchema.Properties["params"]);
+
+            Assert.DoesNotContain("params", requestSchema.Required);
+            Assert.Null(parametersSchema.Required);
         }
 
         [Fact]
