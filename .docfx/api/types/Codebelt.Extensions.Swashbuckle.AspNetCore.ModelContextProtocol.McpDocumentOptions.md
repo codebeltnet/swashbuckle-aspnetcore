@@ -8,6 +8,7 @@ Use `McpDocumentOptions` to customize how the MCP filter documents your server i
 ```csharp
 using Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol;
 using Microsoft.Extensions.DependencyInjection;
+using ModelContextProtocol.AspNetCore;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace YourApp.Configuration;
@@ -27,6 +28,7 @@ public class McpDocumentOptionsExample
                 Pattern = "/api/mcp",
                 TagName = "Machine Intelligence",
                 IncludeTools = true,
+                SessionMode = HttpServerSessionMode.Stateful,
                 EnableLegacySse = true
             };
 
@@ -47,5 +49,6 @@ Each property of `McpDocumentOptions` controls how MCP endpoints appear in the O
 - **Pattern:** The HTTP route for MCP requests (default: `/mcp`).
 - **TagName:** The OpenAPI tag grouping MCP operations (default: `MCP`).
 - **IncludeTools:** Enables automatic tool discovery and documentation (default: `true`).
-- **EnableLegacySse:** Includes legacy HTTP+SSE transport endpoints (default: `false`).
+- **SessionMode:** Must match the `HttpServerTransportOptions.SessionMode` used by `MapMcp`; defaults to `HttpServerSessionMode.Stateless`. Stateless mode documents only `POST`, while stateful and hybrid modes also document the session `GET` and `DELETE` operations.
+- **EnableLegacySse:** Includes legacy HTTP+SSE transport endpoints (default: `false`). Enable it only with a stateful or hybrid session mode.
 

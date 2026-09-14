@@ -25,6 +25,7 @@ public class McpDocumentFilterExample
             Pattern = "/api/mcp",
             TagName = "AI Server",
             IncludeTools = true,
+            SessionMode = ModelContextProtocol.AspNetCore.HttpServerSessionMode.Stateless,
             EnableLegacySse = false
         };
 
@@ -44,5 +45,5 @@ public class McpDocumentFilterExample
 }
 ```
 
-When `McpDocumentFilter` is applied during OpenAPI document generation, it injects the MCP endpoint paths and operations. If tool discovery is enabled, the filter automatically discovers and documents available MCP tools.
+When `McpDocumentFilter` is applied during OpenAPI document generation, it injects the modern MCP Streamable HTTP endpoint, including per-request metadata and protocol headers. The documented root operations follow `SessionMode`: stateless mode exposes only `POST`, while stateful and hybrid modes also expose the initialize-handshake session `GET` and `DELETE` operations. If tool discovery is enabled, the filter automatically discovers and documents available MCP tools.
 

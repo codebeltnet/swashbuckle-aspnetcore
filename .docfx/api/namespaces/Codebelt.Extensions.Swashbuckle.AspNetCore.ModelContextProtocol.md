@@ -8,7 +8,7 @@ The Model Context Protocol (MCP) enables standardized machine-to-machine communi
 
 **When to use:** Choose this namespace when you want to expose an MCP server as part of your API documentation alongside traditional HTTP endpoints. The filter discovers and documents MCP tools and operations in the OpenAPI document.
 
-**Usage:** Call the `AddMcpServer` extension method in your Swagger setup. Optionally configure the MCP endpoint pattern, tag name, tool discovery, and transport mode by passing a configuration action.
+**Usage:** Call the `AddMcpServer` extension method in your Swagger setup. Optionally configure the MCP endpoint pattern, tag name, tool discovery, and `HttpServerSessionMode` to match `MapMcp`. The default documents modern stateless Streamable HTTP; stateful and hybrid modes add the session operations, and legacy SSE remains opt-in.
 
 [!INCLUDE [availability-modern](../../includes/availability-modern.md)]
 
