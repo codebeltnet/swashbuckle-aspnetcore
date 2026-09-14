@@ -7,6 +7,46 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [10.2.6] - 2026-09-14
+
+This is a patch release focused on Model Context Protocol (MCP) transport modernization, test infrastructure updates, and dependency maintenance. The MCP Streamable HTTP transport now supports modern protocol features including session-aware initialization with stateful, stateless, and hybrid modes; test infrastructure has been modernized to use Microsoft.Testing.Extensions.CodeCoverage and Microsoft.Testing.Platform; and all Codebelt, Microsoft, and xunit dependencies have been updated to their latest compatible versions.
+
+### Added
+
+- `global.json` configuration to standardize the test runner to `Microsoft.Testing.Platform` across all environments,
+- `ModelContextProtocol.AspNetCore` package introduced to replace `ModelContextProtocol`, providing ASP.NET Core specific enhancements for MCP transport,
+- `Microsoft.Testing.Extensions.CodeCoverage` package for modern code coverage reporting in test projects,
+- MCP `HttpServerSessionMode` property on `McpDocumentOptions` to control Streamable HTTP session initialization behavior (stateless, stateful, hybrid),
+- MCP modern protocol support with required HTTP headers (`MCP-Protocol-Version`, `Mcp-Method`, `Mcp-Name`) for Streamable HTTP,
+- MCP example request bodies now include protocol version (2026-07-28) and client capabilities metadata in `params._meta`,
+- `CreateSessionGetOperation()` and `CreateSessionDeleteOperation()` methods in `McpDocumentFilter` to expose session lifecycle endpoints for stateful and hybrid modes,
+- Validation to prevent incompatible configuration combinations (legacy SSE requires non-stateless session mode).
+
+### Changed
+
+- `Codebelt.Bootstrapper.Web` dependency upgraded from 5.2.0 to 5.2.1,
+- `Codebelt.Extensions.Asp.Versioning` dependency upgraded from 10.2.3 to 10.2.4,
+- `Codebelt.Extensions.Xunit.App` dependency upgraded from 11.2.1 to 12.0.1,
+- `Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json` dependency upgraded from 10.7.0 to 10.7.1,
+- `Microsoft.NET.Test.Sdk` dependency upgraded from 18.9.0 to 18.10.0,
+- `MinVer` dependency upgraded from 7.0.0 to 8.0.0,
+- `xunit.v3` dependency upgraded from 3.2.2 to 4.0.1,
+- `xunit.v3.runner.console` dependency upgraded from 3.2.2 to 4.0.1,
+- `xunit.runner.visualstudio` dependency upgraded from 3.1.5 to 4.0.0,
+- `McpDocumentFilter` refactored to implement modern MCP Streamable HTTP specification (2026-07-28) with session modes, protocol version and capability negotiation, and required HTTP request headers,
+- `McpDocumentFilter` Streamable HTTP documentation updated to describe modern protocol requirements and session mode behavior,
+- CONTRIBUTING.md restructured with clear guidance on local development workflow, build process, test matrix, integration environments, and pull request requirements.
+
+### Removed
+
+- `ModelContextProtocol` package (replaced by `ModelContextProtocol.AspNetCore`),
+- `coverlet.msbuild` package (replaced by `Microsoft.Testing.Extensions.CodeCoverage`),
+- `coverlet.collector` package (replaced by `Microsoft.Testing.Extensions.CodeCoverage`).
+
+### Fixed
+
+- `McpDocumentFilter` now validates that legacy SSE mode is only used with stateful or hybrid session modes, preventing invalid configuration where stateless mode cannot sustain server-initiated notifications.
+
 ## [10.2.5] - 2026-08-17
 
 This is a patch release focused on dependency upgrades, test infrastructure simplification, and repository configuration standards. All Codebelt and Microsoft dependencies have been updated to their latest compatible versions, the test matrix has been consolidated to a multi-version Docker runner, and new repository configuration files establish code style and line-ending standards across the team.
@@ -251,6 +291,7 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
+[10.2.6]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.5...v10.2.6
 [10.2.5]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.4...v10.2.5
 [10.2.4]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.3...v10.2.4
 [10.2.3]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.2...v10.2.3

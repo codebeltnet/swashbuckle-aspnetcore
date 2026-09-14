@@ -4,6 +4,7 @@ using Codebelt.Extensions.Xunit.Hosting.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using ModelContextProtocol.AspNetCore;
 using Xunit;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
@@ -95,7 +96,11 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             {
                 services.AddRouting();
                 services.AddEndpointsApiExplorer();
-                services.AddSwaggerGen(o => o.AddMcpServer(o => o.EnableLegacySse = true));
+                services.AddSwaggerGen(o => o.AddMcpServer(o =>
+                {
+                    o.EnableLegacySse = true;
+                    o.SessionMode = HttpServerSessionMode.Stateful;
+                }));
             }, app =>
             {
                 app.UseRouting();
@@ -122,6 +127,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
                 services.AddSwaggerGen(o => o.AddMcpServer(o =>
                 {
                     o.Pattern = "/ai/mcp";
+                    o.SessionMode = HttpServerSessionMode.Stateful;
                     o.EnableLegacySse = true;
                 }));
             }, app =>
@@ -197,7 +203,11 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             {
                 services.AddRouting();
                 services.AddEndpointsApiExplorer();
-                services.AddSwaggerGen(o => o.AddMcpServer(o => o.EnableLegacySse = true));
+                services.AddSwaggerGen(o => o.AddMcpServer(o =>
+                {
+                    o.EnableLegacySse = true;
+                    o.SessionMode = HttpServerSessionMode.Stateful;
+                }));
             }, app =>
             {
                 app.UseRouting();

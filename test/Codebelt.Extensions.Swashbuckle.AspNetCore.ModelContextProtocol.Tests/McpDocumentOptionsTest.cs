@@ -1,4 +1,5 @@
 using Codebelt.Extensions.Xunit;
+using ModelContextProtocol.AspNetCore;
 using Xunit;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
@@ -20,6 +21,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             Assert.Equal("/mcp", sut.Pattern);
             Assert.Equal("MCP", sut.TagName);
             Assert.True(sut.IncludeTools);
+            Assert.Equal(HttpServerSessionMode.Stateless, sut.SessionMode);
             Assert.False(sut.EnableLegacySse);
         }
 
@@ -31,12 +33,14 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
                 Pattern = "/ai",
                 TagName = "AI",
                 IncludeTools = false,
+                SessionMode = HttpServerSessionMode.Stateful,
                 EnableLegacySse = true
             };
 
             Assert.Equal("/ai", sut.Pattern);
             Assert.Equal("AI", sut.TagName);
             Assert.False(sut.IncludeTools);
+            Assert.Equal(HttpServerSessionMode.Stateful, sut.SessionMode);
             Assert.True(sut.EnableLegacySse);
         }
     }
