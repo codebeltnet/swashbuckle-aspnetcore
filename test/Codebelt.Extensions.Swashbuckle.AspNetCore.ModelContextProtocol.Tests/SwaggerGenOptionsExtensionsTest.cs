@@ -1,5 +1,6 @@
 using System;
 using Codebelt.Extensions.Xunit;
+using ModelContextProtocol.AspNetCore;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Xunit;
 
@@ -42,6 +43,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
                 Pattern = "/custom-mcp",
                 TagName = "Custom",
                 IncludeTools = false,
+                SessionMode = HttpServerSessionMode.Stateful,
                 EnableLegacySse = true
             };
             var filter = new McpDocumentFilter(customOptions);
@@ -49,6 +51,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             Assert.Equal("/custom-mcp", filter.Options.Pattern);
             Assert.Equal("Custom", filter.Options.TagName);
             Assert.False(filter.Options.IncludeTools);
+            Assert.Equal(HttpServerSessionMode.Stateful, filter.Options.SessionMode);
             Assert.True(filter.Options.EnableLegacySse);
         }
 
@@ -60,6 +63,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             Assert.Equal("/mcp", filter.Options.Pattern);
             Assert.Equal("MCP", filter.Options.TagName);
             Assert.True(filter.Options.IncludeTools);
+            Assert.Equal(HttpServerSessionMode.Stateless, filter.Options.SessionMode);
             Assert.False(filter.Options.EnableLegacySse);
         }
     }

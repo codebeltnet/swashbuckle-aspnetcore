@@ -4,8 +4,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.Json.Nodes;
 using System.Threading;
+using System;
 using Codebelt.Extensions.Xunit;
 using Microsoft.OpenApi;
+using ModelContextProtocol.AspNetCore;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -85,7 +87,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
         [Fact]
         public void Apply_ShouldAddLegacySsePaths_WhenEnabled()
         {
-            var sut = new McpDocumentFilter(new McpDocumentOptions { EnableLegacySse = true });
+            var sut = new McpDocumentFilter(new McpDocumentOptions { EnableLegacySse = true, SessionMode = HttpServerSessionMode.Stateful });
             var doc = new OpenApiDocument();
 
             sut.Apply(doc, null);
@@ -97,7 +99,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
         [Fact]
         public void Apply_ShouldUseCustomPattern_WhenPatternIsOverridden()
         {
-            var sut = new McpDocumentFilter(new McpDocumentOptions { Pattern = "/ai/mcp", EnableLegacySse = true });
+            var sut = new McpDocumentFilter(new McpDocumentOptions { Pattern = "/ai/mcp", EnableLegacySse = true, SessionMode = HttpServerSessionMode.Stateful });
             var doc = new OpenApiDocument();
 
             sut.Apply(doc, null);
@@ -132,6 +134,42 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
         }
 
         [Fact]
+        public void Apply_ShouldExposeOnlyPostOperation_InStatelessMode()
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions());
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            Assert.Single(doc.Paths["/mcp"].Operations);
+            Assert.Contains(System.Net.Http.HttpMethod.Post, doc.Paths["/mcp"].Operations.Keys);
+        }
+
+        [Theory]
+        [InlineData(HttpServerSessionMode.Stateful)]
+        [InlineData(HttpServerSessionMode.StatefulForInitializeClients)]
+        public void Apply_ShouldExposeSessionOperations_InSessionModes(HttpServerSessionMode sessionMode)
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions { SessionMode = sessionMode });
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            Assert.Contains(System.Net.Http.HttpMethod.Get, doc.Paths["/mcp"].Operations.Keys);
+            Assert.Contains(System.Net.Http.HttpMethod.Delete, doc.Paths["/mcp"].Operations.Keys);
+        }
+
+        [Fact]
+        public void Apply_ShouldRejectLegacySse_WhenStateless()
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions { EnableLegacySse = true });
+
+            var exception = Assert.Throws<InvalidOperationException>(() => sut.Apply(new OpenApiDocument(), null));
+
+            Assert.Equal("Legacy SSE requires a stateful MCP HTTP session mode.", exception.Message);
+        }
+
+        [Fact]
         public void Apply_ShouldSetOperationId_ToMcp_ForStreamableHttpPath()
         {
             var sut = new McpDocumentFilter(new McpDocumentOptions());
@@ -154,6 +192,28 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             var responses = doc.Paths["/mcp"].Operations[System.Net.Http.HttpMethod.Post].Responses;
             Assert.True(responses.ContainsKey("200"));
             Assert.True(responses.ContainsKey("202"));
+        }
+
+        [Fact]
+        public void Apply_ShouldDocumentModernProtocolHeadersAndMetadata()
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions());
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            var operation = doc.Paths["/mcp"].Operations[HttpMethod.Post];
+            Assert.Contains(operation.Parameters, p => p.Name == "MCP-Protocol-Version" && p.Required);
+            Assert.Contains(operation.Parameters, p => p.Name == "Mcp-Method" && p.Required);
+            Assert.Contains(operation.Parameters, p => p.Name == "Mcp-Name");
+            Assert.Contains("2026-07-28", operation.Description);
+            Assert.Contains("server/discover", operation.Description);
+
+            var requestSchema = Assert.IsType<OpenApiSchema>(operation.RequestBody.Content["application/json"].Schema);
+            var parametersSchema = Assert.IsType<OpenApiSchema>(requestSchema.Properties["params"]);
+            var metadataSchema = Assert.IsType<OpenApiSchema>(parametersSchema.Properties["_meta"]);
+            Assert.Contains("io.modelcontextprotocol/protocolVersion", metadataSchema.Required);
+            Assert.Contains("io.modelcontextprotocol/clientCapabilities", metadataSchema.Required);
         }
 
         [Fact]
