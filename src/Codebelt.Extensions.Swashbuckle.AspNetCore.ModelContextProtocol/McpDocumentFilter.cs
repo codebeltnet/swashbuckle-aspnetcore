@@ -197,12 +197,16 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
 
     private OpenApiPathItem CreateStreamableHttpPathItem(OpenApiDocument swaggerDoc, IReadOnlyList<McpToolInfo> tools)
     {
-        var requestMediaType = new OpenApiMediaType { Schema = CreateJsonRpc2RequestSchema() };
+        var requestMediaType = new OpenApiMediaType { Schema = CreateJsonRpc2RequestSchema(requireModernMetadata: true) };
         if (tools?.Count > 0)
             requestMediaType.Examples = tools.ToDictionary(
                 t => t.Name,
                 t => (IOpenApiExample)new OpenApiExample { Summary = t.Name, Value = McpDocumentFilter.BuildExampleBody(t) }
             );
+
+        var parameters = CreateModernHttpParameters();
+        if (Options.SessionMode != HttpServerSessionMode.Stateless)
+            parameters.Add(CreateSessionIdParameter(required: false));
 
         return new OpenApiPathItem
         {
@@ -214,7 +218,7 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
                     Summary = "Streamable HTTP",
                     Description = McpDocumentFilter.BuildStreamableHttpDescription(tools),
                     OperationId = "mcp",
-                    Parameters = CreateModernHttpParameters(),
+                    Parameters = parameters,
                     RequestBody = new OpenApiRequestBody
                     {
                         Required = true,
@@ -290,12 +294,22 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
         }
     ];
 
+    private static OpenApiParameter CreateSessionIdParameter(bool required) => new()
+    {
+        Name = "Mcp-Session-Id",
+        In = ParameterLocation.Header,
+        Required = required,
+        Description = "The session identifier returned in the initialize response. Omit it only from the initialize request.",
+        Schema = new OpenApiSchema { Type = JsonSchemaType.String }
+    };
+
     private OpenApiOperation CreateSessionGetOperation(OpenApiDocument swaggerDoc) => new()
     {
         Tags = new HashSet<OpenApiTagReference> { new(Options.TagName, swaggerDoc, null) },
         Summary = "Streamable HTTP — session event stream",
         Description = "Opens the optional session event stream for stateful initialize-handshake clients. It is not mapped in stateless mode and returns `405 Method Not Allowed` for modern 2026-07-28 requests.",
         OperationId = "mcp-session-stream",
+        Parameters = new List<IOpenApiParameter> { CreateSessionIdParameter(required: true) },
         Responses = new OpenApiResponses
         {
             ["200"] = new OpenApiResponse
@@ -319,6 +333,7 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
         Summary = "Streamable HTTP — terminate session",
         Description = "Terminates a stateful initialize-handshake session. It is not mapped in stateless mode and returns `405 Method Not Allowed` for modern 2026-07-28 requests.",
         OperationId = "mcp-session-delete",
+        Parameters = new List<IOpenApiParameter> { CreateSessionIdParameter(required: true) },
         Responses = new OpenApiResponses
         {
             ["200"] = new OpenApiResponse { Description = "Session terminated." },
@@ -403,9 +418,9 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
         };
     }
 
-    private static OpenApiSchema CreateJsonRpc2RequestSchema()
+    private static OpenApiSchema CreateJsonRpc2RequestSchema(bool requireModernMetadata = false)
     {
-        return new OpenApiSchema
+        var schema = new OpenApiSchema
         {
             Type = JsonSchemaType.Object,
             Description = "JSON-RPC 2.0 request or notification envelope.",
@@ -464,6 +479,15 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
             },
             Required = new HashSet<string> { "jsonrpc", "method" }
         };
+
+        if (requireModernMetadata)
+        {
+            schema.Required.Add("params");
+            var parametersSchema = (OpenApiSchema)schema.Properties["params"];
+            parametersSchema.Required = new HashSet<string> { "_meta" };
+        }
+
+        return schema;
     }
 
     private static OpenApiSchema CreateJsonRpc2ResponseSchema()
