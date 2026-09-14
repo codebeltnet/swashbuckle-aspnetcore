@@ -1,5 +1,6 @@
 using Cuemon.Reflection;
 using Microsoft.OpenApi;
+using ModelContextProtocol.AspNetCore;
 using ModelContextProtocol.Server;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
@@ -15,13 +16,15 @@ using System.Threading;
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol;
 
 /// <summary>
-/// A Swashbuckle <see cref="IDocumentFilter"/> that injects the MCP Streamable HTTP transport
+/// A Swashbuckle <see cref="IDocumentFilter"/> that injects the modern MCP Streamable HTTP transport
 /// endpoint (and optionally the legacy SSE endpoints) into the generated OpenAPI document.
 /// </summary>
 /// <seealso cref="DocumentFilter{T}"/>
 /// <seealso cref="McpDocumentOptions"/>
 public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
 {
+    private const string ModernProtocolVersion = "2026-07-28";
+
     /// <summary>
     /// Initializes a new instance of the <see cref="McpDocumentFilter"/> class.
     /// </summary>
@@ -38,6 +41,11 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
     /// <remarks>Injects the MCP Streamable HTTP transport endpoint (and optionally the legacy SSE endpoints) into the generated OpenAPI document.</remarks>
     public override void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
+        if (Options.EnableLegacySse && Options.SessionMode == HttpServerSessionMode.Stateless)
+        {
+            throw new InvalidOperationException("Legacy SSE requires a stateful MCP HTTP session mode.");
+        }
+
         swaggerDoc.Tags ??= new HashSet<OpenApiTag>();
         if (swaggerDoc.Tags.All(t => t.Name != Options.TagName))
         {
@@ -51,7 +59,14 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
         var tools = Options.IncludeTools ? McpDocumentFilter.DiscoverTools() : null;
 
         swaggerDoc.Paths ??= new OpenApiPaths();
-        swaggerDoc.Paths.Add(Options.Pattern, CreateStreamableHttpPathItem(swaggerDoc, tools));
+        var streamableHttpPathItem = CreateStreamableHttpPathItem(swaggerDoc, tools);
+        if (Options.SessionMode != HttpServerSessionMode.Stateless)
+        {
+            streamableHttpPathItem.Operations[HttpMethod.Get] = CreateSessionGetOperation(swaggerDoc);
+            streamableHttpPathItem.Operations[HttpMethod.Delete] = CreateSessionDeleteOperation(swaggerDoc);
+        }
+
+        swaggerDoc.Paths.Add(Options.Pattern, streamableHttpPathItem);
 
         if (Options.EnableLegacySse)
         {
@@ -106,6 +121,12 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
             paramsObject["arguments"] = arguments;
         }
 
+        paramsObject["_meta"] = new JsonObject
+        {
+            ["io.modelcontextprotocol/protocolVersion"] = JsonValue.Create(McpDocumentFilter.ModernProtocolVersion),
+            ["io.modelcontextprotocol/clientCapabilities"] = new JsonObject()
+        };
+
         return new JsonObject
         {
             ["jsonrpc"] = JsonValue.Create("2.0"),
@@ -131,15 +152,20 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
     {
         var description = """
             Bidirectional JSON-RPC 2.0 endpoint following the
-            [MCP Streamable HTTP specification (2025-11-25)](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#streamable-http).
+            [MCP Streamable HTTP specification (2026-07-28)](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http).
 
-            **Request** — send a single JSON-RPC 2.0 request or notification object, or a JSON array of batched requests.
+            **Request** — send one JSON-RPC 2.0 request or notification object as an HTTP `POST`. Modern requests
+            carry `io.modelcontextprotocol/protocolVersion` and `io.modelcontextprotocol/clientCapabilities` in
+            `params._meta` and mirror the protocol version and method in the required HTTP headers. The modern
+            `server/discover` request is sent to this same endpoint.
 
             **Response** — the server returns either:
             - `application/json` for a complete single response, or
             - `text/event-stream` when the server opens a streaming response with one or more SSE events.
 
-            A `202 Accepted` with an empty body is returned for notifications or requests that require no response.
+            A `202 Accepted` with an empty body is returned for accepted notifications. Stateless mode is the modern
+            default and exposes only this `POST` operation; stateful and hybrid modes additionally expose `GET` and
+            `DELETE` for initialize-handshake clients. Legacy SSE is a separate, opt-in compatibility transport.
             """;
 
         if (tools?.Count > 0)
@@ -184,14 +210,15 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
             {
                 [HttpMethod.Post] = new OpenApiOperation
                 {
-                    Tags = new HashSet<OpenApiTagReference> { new OpenApiTagReference(Options.TagName, swaggerDoc, null) },
+                    Tags = new HashSet<OpenApiTagReference> { new(Options.TagName, swaggerDoc, null) },
                     Summary = "Streamable HTTP",
                     Description = McpDocumentFilter.BuildStreamableHttpDescription(tools),
                     OperationId = "mcp",
+                    Parameters = CreateModernHttpParameters(),
                     RequestBody = new OpenApiRequestBody
                     {
                         Required = true,
-                        Description = "A JSON-RPC 2.0 request, notification, or batch array.",
+                        Description = "A single JSON-RPC 2.0 request or notification object. Modern Streamable HTTP does not accept batch arrays.",
                         Content = new Dictionary<string, OpenApiMediaType>
                         {
                             ["application/json"] = requestMediaType
@@ -224,6 +251,82 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
         };
     }
 
+    private static List<IOpenApiParameter> CreateModernHttpParameters() =>
+    [
+        new OpenApiParameter
+        {
+            Name = "Accept",
+            In = ParameterLocation.Header,
+            Required = true,
+            Description = "Must list both application/json and text/event-stream.",
+            Schema = new OpenApiSchema { Type = JsonSchemaType.String }
+        },
+        new OpenApiParameter
+        {
+            Name = "MCP-Protocol-Version",
+            In = ParameterLocation.Header,
+            Required = true,
+            Description = "Modern protocol version. Must match params._meta.io.modelcontextprotocol/protocolVersion.",
+            Schema = new OpenApiSchema
+            {
+                Type = JsonSchemaType.String,
+                Enum = [JsonValue.Create(McpDocumentFilter.ModernProtocolVersion)]
+            }
+        },
+        new OpenApiParameter
+        {
+            Name = "Mcp-Method",
+            In = ParameterLocation.Header,
+            Required = true,
+            Description = "Must match the JSON-RPC method.",
+            Schema = new OpenApiSchema { Type = JsonSchemaType.String }
+        },
+        new OpenApiParameter
+        {
+            Name = "Mcp-Name",
+            In = ParameterLocation.Header,
+            Description = "Required for tools/call, resources/read, and prompts/get; must match the name or URI in params.",
+            Schema = new OpenApiSchema { Type = JsonSchemaType.String }
+        }
+    ];
+
+    private OpenApiOperation CreateSessionGetOperation(OpenApiDocument swaggerDoc) => new()
+    {
+        Tags = new HashSet<OpenApiTagReference> { new(Options.TagName, swaggerDoc, null) },
+        Summary = "Streamable HTTP — session event stream",
+        Description = "Opens the optional session event stream for stateful initialize-handshake clients. It is not mapped in stateless mode and returns `405 Method Not Allowed` for modern 2026-07-28 requests.",
+        OperationId = "mcp-session-stream",
+        Responses = new OpenApiResponses
+        {
+            ["200"] = new OpenApiResponse
+            {
+                Description = "SSE stream for session-scoped messages.",
+                Content = new Dictionary<string, OpenApiMediaType>
+                {
+                    ["text/event-stream"] = new OpenApiMediaType
+                    {
+                        Schema = new OpenApiSchema { Type = JsonSchemaType.String, Description = "Server-Sent Events stream." }
+                    }
+                }
+            },
+            ["405"] = new OpenApiResponse { Description = "Method Not Allowed for stateless or modern protocol requests." }
+        }
+    };
+
+    private OpenApiOperation CreateSessionDeleteOperation(OpenApiDocument swaggerDoc) => new()
+    {
+        Tags = new HashSet<OpenApiTagReference> { new(Options.TagName, swaggerDoc, null) },
+        Summary = "Streamable HTTP — terminate session",
+        Description = "Terminates a stateful initialize-handshake session. It is not mapped in stateless mode and returns `405 Method Not Allowed` for modern 2026-07-28 requests.",
+        OperationId = "mcp-session-delete",
+        Responses = new OpenApiResponses
+        {
+            ["200"] = new OpenApiResponse { Description = "Session terminated." },
+            ["404"] = new OpenApiResponse { Description = "Session not found." },
+            ["405"] = new OpenApiResponse { Description = "Method Not Allowed for stateless or modern protocol requests." }
+        }
+    };
+
     private OpenApiPathItem CreateSsePathItem(OpenApiDocument swaggerDoc)
     {
         return new OpenApiPathItem
@@ -232,7 +335,7 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
             {
                 [HttpMethod.Get] = new OpenApiOperation
                 {
-                    Tags = new HashSet<OpenApiTagReference> { new OpenApiTagReference(Options.TagName, swaggerDoc, null) },
+                    Tags = new HashSet<OpenApiTagReference> { new(Options.TagName, swaggerDoc, null) },
                     Summary = "Legacy SSE transport — open stream",
                     Description = """
                         Opens the Server-Sent Events channel for the legacy HTTP+SSE transport
@@ -269,7 +372,7 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
             {
                 [HttpMethod.Post] = new OpenApiOperation
                 {
-                    Tags = new HashSet<OpenApiTagReference> { new OpenApiTagReference(Options.TagName, swaggerDoc, null) },
+                    Tags = new HashSet<OpenApiTagReference> { new(Options.TagName, swaggerDoc, null) },
                     Summary = "Legacy SSE transport — send message",
                     Description = """
                         Sends a JSON-RPC 2.0 request or notification through the legacy HTTP+SSE transport.
@@ -327,7 +430,36 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
                 ["params"] = new OpenApiSchema
                 {
                     Type = JsonSchemaType.Object,
-                    Description = "Method parameters. Shape depends on the method."
+                    Description = "Method parameters. Shape depends on the method. Modern requests include protocol metadata in _meta.",
+                    Properties = new Dictionary<string, IOpenApiSchema>
+                    {
+                        ["_meta"] = new OpenApiSchema
+                        {
+                            Type = JsonSchemaType.Object,
+                            Description = "Modern per-request MCP metadata. Required for 2026-07-28 requests.",
+                            Properties = new Dictionary<string, IOpenApiSchema>
+                            {
+                                ["io.modelcontextprotocol/protocolVersion"] = new OpenApiSchema
+                                {
+                                    Type = JsonSchemaType.String,
+                                    Enum = [JsonValue.Create(McpDocumentFilter.ModernProtocolVersion)]
+                                },
+                                ["io.modelcontextprotocol/clientCapabilities"] = new OpenApiSchema
+                                {
+                                    Type = JsonSchemaType.Object
+                                },
+                                ["io.modelcontextprotocol/clientInfo"] = new OpenApiSchema
+                                {
+                                    Type = JsonSchemaType.Object
+                                }
+                            },
+                            Required = new HashSet<string>
+                            {
+                                "io.modelcontextprotocol/protocolVersion",
+                                "io.modelcontextprotocol/clientCapabilities"
+                            }
+                        }
+                    }
                 }
             },
             Required = new HashSet<string> { "jsonrpc", "method" }
@@ -356,7 +488,16 @@ public class McpDocumentFilter : DocumentFilter<McpDocumentOptions>
                 ["result"] = new OpenApiSchema
                 {
                     Type = JsonSchemaType.Object,
-                    Description = "Present on success. Shape depends on the method."
+                    Description = "Present on success. Shape depends on the method.",
+                    Properties = new Dictionary<string, IOpenApiSchema>
+                    {
+                        ["resultType"] = new OpenApiSchema
+                        {
+                            Type = JsonSchemaType.String,
+                            Description = "Modern result discriminator.",
+                            Enum = [JsonValue.Create("complete"), JsonValue.Create("input_required")]
+                        }
+                    }
                 },
                 ["error"] = new OpenApiSchema
                 {

@@ -1,4 +1,5 @@
 using Cuemon.Configuration;
+using ModelContextProtocol.AspNetCore;
 
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
 {
@@ -19,6 +20,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
         /// <item><term><see cref="Pattern"/></term><description><c>/mcp</c></description></item>
         /// <item><term><see cref="TagName"/></term><description><c>MCP</c></description></item>
         /// <item><term><see cref="IncludeTools"/></term><description><c>true</c></description></item>
+        /// <item><term><see cref="SessionMode"/></term><description><see cref="HttpServerSessionMode.Stateless"/></description></item>
         /// <item><term><see cref="EnableLegacySse"/></term><description><c>false</c></description></item>
         /// </list>
         /// </remarks>
@@ -27,6 +29,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             Pattern = "/mcp";
             TagName = "MCP";
             IncludeTools = true;
+            SessionMode = HttpServerSessionMode.Stateless;
             EnableLegacySse = false;
         }
 
@@ -50,6 +53,18 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
         /// </summary>
         /// <value>Defaults to <c>true</c>.</value>
         public bool IncludeTools { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the Streamable HTTP session mode used by <c>MapMcp</c>.
+        /// </summary>
+        /// <value>Defaults to <see cref="HttpServerSessionMode.Stateless"/>, the modern MCP-compatible mode.</value>
+        /// <remarks>
+        /// Keep this value aligned with <see cref="HttpServerTransportOptions.SessionMode"/>. Stateless mode exposes
+        /// only the POST endpoint. Stateful and hybrid modes also expose the session GET and DELETE endpoints for
+        /// initialize-handshake clients. The <see cref="EnableLegacySse"/> option requires a non-stateless mode.
+        /// </remarks>
+        public HttpServerSessionMode SessionMode { get; set; }
 
 
         /// <summary>
