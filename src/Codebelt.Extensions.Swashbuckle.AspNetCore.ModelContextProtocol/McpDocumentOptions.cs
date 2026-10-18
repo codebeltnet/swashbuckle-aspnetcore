@@ -1,3 +1,7 @@
+using System;
+using System.Linq;
+using Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol.Versions;
+using Cuemon;
 using Cuemon.Configuration;
 using ModelContextProtocol.AspNetCore;
 
@@ -7,7 +11,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
     /// <summary>
     /// Provides programmatic configuration for the <see cref="McpDocumentFilter"/> class.
     /// </summary>
-    public class McpDocumentOptions : IParameterObject
+    public class McpDocumentOptions : IValidatableParameterObject
     {
 
         /// <summary>
@@ -22,6 +26,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
         /// <item><term><see cref="IncludeTools"/></term><description><c>true</c></description></item>
         /// <item><term><see cref="SessionMode"/></term><description><see cref="HttpServerSessionMode.Stateless"/></description></item>
         /// <item><term><see cref="EnableLegacySse"/></term><description><c>false</c></description></item>
+        /// <item><term><see cref="Version"/></term><description><c>2026-07-28</c></description></item>
         /// </list>
         /// </remarks>
         public McpDocumentOptions()
@@ -31,6 +36,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             IncludeTools = true;
             SessionMode = HttpServerSessionMode.Stateless;
             EnableLegacySse = false;
+            Version = McpDocumentProtocolVersions.July2026;
         }
 
 
@@ -56,6 +62,20 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
 
 
         /// <summary>
+        /// Gets or sets the MCP protocol revision documented by <see cref="McpDocumentFilter"/>.
+        /// </summary>
+        /// <value>
+        /// Defaults to <c>2026-07-28</c>. The supported revisions are
+        /// <c>2026-07-28</c>, <c>2025-11-25</c>, <c>2025-06-18</c>, <c>2025-03-26</c>, and <c>2024-11-05</c>.
+        /// </value>
+        /// <remarks>
+        /// The selected revision changes the documented transport, request metadata, headers, and request schema.
+        /// The 2024-11-05 revision documents the legacy HTTP+SSE <c>/sse</c> and <c>/message</c> endpoints.
+        /// </remarks>
+        public string Version { get; set; }
+
+
+        /// <summary>
         /// Gets or sets the Streamable HTTP session mode used by <c>MapMcp</c>.
         /// </summary>
         /// <value>Defaults to <see cref="HttpServerSessionMode.Stateless"/>, the modern MCP-compatible mode.</value>
@@ -73,5 +93,20 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
         /// </summary>
         /// <value>Defaults to <c>false</c>.</value>
         public bool EnableLegacySse { get; set; }
+
+        /// <summary>
+        /// Determines whether the public read-write properties of this instance are in a valid state.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// <see cref="Version"/> is null, empty, or consists only of white-space characters - or -
+        /// <see cref="Version"/> is not one of the supported MCP revisions:
+        /// <c>2026-07-28</c>, <c>2025-11-25</c>, <c>2025-06-18</c>, <c>2025-03-26</c>, or <c>2024-11-05</c>.
+        /// </exception>
+        /// <remarks>This method is expected to throw exceptions when one or more conditions fails to be in a valid state.</remarks>
+        public void ValidateOptions()
+        {
+            Validator.ThrowIfInvalidState(string.IsNullOrWhiteSpace(Version), $"{nameof(Version)} cannot be null, empty, or consist only of white-space characters.");
+            Validator.ThrowIfInvalidState(!McpDocumentProtocolVersions.Supported.Contains(Version), $"{nameof(Version)} must be one of the supported MCP revisions: {string.Join(", ", McpDocumentProtocolVersions.Supported)}.");
+        }
     }
 }
