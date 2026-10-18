@@ -17,6 +17,10 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol.Versio
 
 internal abstract class McpDocumentFilter
 {
+    private const string JsonRpcPropertyName = "jsonrpc";
+    private const string MethodPropertyName = "method";
+    private const string ParamsPropertyName = "params";
+
     protected McpDocumentFilter(McpDocumentOptions options, string version)
     {
         Options = options;
@@ -97,13 +101,13 @@ internal abstract class McpDocumentFilter
             foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Where(m => m.GetCustomAttribute<McpServerToolAttribute>() != null))
             {
-                var toolAttr = method.GetCustomAttribute<McpServerToolAttribute>()!;
+                var toolAttr = method.GetCustomAttribute<McpServerToolAttribute>();
                 var toolName = toolAttr.Name ?? ToSnakeCaseName(method.Name);
                 var toolDescription = method.GetCustomAttribute<DescriptionAttribute>()?.Description;
                 var parameters = method.GetParameters()
                     .Where(p => p.ParameterType != typeof(CancellationToken) &&
                                p.ParameterType.FullName?.StartsWith("ModelContextProtocol", StringComparison.Ordinal) != true)
-                    .Select(p => (ParamName: p.Name!, p.ParameterType))
+                    .Select(p => (ParamName: p.Name, p.ParameterType))
                     .ToList();
                 tools.Add(new McpToolInfo(toolName, toolDescription, parameters));
             }
@@ -115,7 +119,7 @@ internal abstract class McpDocumentFilter
     private static IEnumerable<Type> GetAssemblyTypes(Assembly assembly)
     {
         try { return assembly.GetTypes(); }
-        catch (ReflectionTypeLoadException ex) { return ex.Types.Where(t => t != null).Cast<Type>(); }
+        catch (ReflectionTypeLoadException ex) { return ex.Types.Where(t => t != null); }
         catch { return Array.Empty<Type>(); }
     }
 
@@ -141,24 +145,24 @@ internal abstract class McpDocumentFilter
 
         return new JsonObject
         {
-            ["jsonrpc"] = JsonValue.Create("2.0"),
+            [JsonRpcPropertyName] = JsonValue.Create("2.0"),
             ["id"] = JsonValue.Create(1),
-            ["method"] = JsonValue.Create("tools/call"),
-            ["params"] = paramsObject
+            [MethodPropertyName] = JsonValue.Create("tools/call"),
+            [ParamsPropertyName] = paramsObject
         };
     }
 
     private static JsonNode GetDefaultExampleValue(Type type)
     {
-        if (type == typeof(string)) return JsonValue.Create("")!;
-        if (type == typeof(bool)) return JsonValue.Create(false)!;
-        if (type == typeof(int) || type == typeof(long) || type == typeof(short)) return JsonValue.Create(0)!;
-        if (type == typeof(double) || type == typeof(float) || type == typeof(decimal)) return JsonValue.Create(0.0)!;
+        if (type == typeof(string)) return JsonValue.Create("");
+        if (type == typeof(bool)) return JsonValue.Create(false);
+        if (type == typeof(int) || type == typeof(long) || type == typeof(short)) return JsonValue.Create(0);
+        if (type == typeof(double) || type == typeof(float) || type == typeof(decimal)) return JsonValue.Create(0.0);
         return new JsonObject();
     }
 
     private static string ToSnakeCaseName(string name) =>
-        Regex.Replace(name, "([a-z0-9])([A-Z])", "$1_$2").ToLowerInvariant();
+        Regex.Replace(name, "([a-z0-9])([A-Z])", "$1_$2", RegexOptions.None, TimeSpan.FromSeconds(1)).ToLowerInvariant();
 
     private string BuildStreamableHttpDescription(IReadOnlyList<McpToolInfo> tools)
     {
@@ -536,7 +540,7 @@ internal abstract class McpDocumentFilter
             Description = "JSON-RPC 2.0 request or notification envelope.",
             Properties = new Dictionary<string, IOpenApiSchema>
             {
-                ["jsonrpc"] = new OpenApiSchema
+                [JsonRpcPropertyName] = new OpenApiSchema
                 {
                     Type = JsonSchemaType.String,
                     Description = "Must be exactly \"2.0\".",
@@ -547,12 +551,12 @@ internal abstract class McpDocumentFilter
                     Type = JsonSchemaType.String | JsonSchemaType.Integer | JsonSchemaType.Null,
                     Description = "Request identifier. Omit for notifications."
                 },
-                ["method"] = new OpenApiSchema
+                [MethodPropertyName] = new OpenApiSchema
                 {
                     Type = JsonSchemaType.String,
                     Description = "The MCP method name, e.g. \"tools/list\" or \"tools/call\"."
                 },
-                ["params"] = new OpenApiSchema
+                [ParamsPropertyName] = new OpenApiSchema
                 {
                     Type = JsonSchemaType.Object,
                     Description = requireModernMetadata ? "Method parameters. Shape depends on the method. Modern requests include protocol metadata in _meta." : "Optional method parameters and metadata.",
@@ -562,13 +566,13 @@ internal abstract class McpDocumentFilter
                     }
                 }
             },
-            Required = new HashSet<string> { "jsonrpc", "method" }
+            Required = new HashSet<string> { JsonRpcPropertyName, MethodPropertyName }
         };
 
         if (requireModernMetadata)
         {
-            schema.Required.Add("params");
-            var parametersSchema = (OpenApiSchema)schema.Properties["params"];
+            schema.Required.Add(ParamsPropertyName);
+            var parametersSchema = (OpenApiSchema)schema.Properties[ParamsPropertyName];
             parametersSchema.Required = new HashSet<string> { "_meta" };
         }
 
@@ -619,10 +623,10 @@ internal abstract class McpDocumentFilter
         {
             Type = JsonSchemaType.Object,
             Description = "JSON-RPC 2.0 response or error envelope.",
-            Required = new HashSet<string> { "jsonrpc", "id" },
+            Required = new HashSet<string> { JsonRpcPropertyName, "id" },
             Not = new OpenApiSchema
             {
-                Required = new HashSet<string> { "method" }
+                Required = new HashSet<string> { MethodPropertyName }
             },
             OneOf = new List<IOpenApiSchema>
             {
@@ -631,7 +635,7 @@ internal abstract class McpDocumentFilter
             },
             Properties = new Dictionary<string, IOpenApiSchema>
             {
-                ["jsonrpc"] = new OpenApiSchema
+                [JsonRpcPropertyName] = new OpenApiSchema
                 {
                     Type = JsonSchemaType.String,
                     Description = "Always \"2.0\".",
