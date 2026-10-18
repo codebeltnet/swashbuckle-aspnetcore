@@ -26,7 +26,8 @@ public class McpDocumentFilterExample
             TagName = "AI Server",
             IncludeTools = true,
             SessionMode = ModelContextProtocol.AspNetCore.HttpServerSessionMode.Stateless,
-            EnableLegacySse = false
+            EnableLegacySse = false,
+            Version = "2025-11-25"
         };
 
         // Instantiate the document filter directly
@@ -45,5 +46,5 @@ public class McpDocumentFilterExample
 }
 ```
 
-When `McpDocumentFilter` is applied during OpenAPI document generation, it injects the modern MCP Streamable HTTP endpoint, including per-request metadata and protocol headers. The documented root operations follow `SessionMode`: stateless mode exposes only `POST`, while stateful and hybrid modes also expose the initialize-handshake session `GET` and `DELETE` operations. If tool discovery is enabled, the filter automatically discovers and documents available MCP tools.
+When `McpDocumentFilter` is applied during OpenAPI document generation, it uses `McpDocumentOptions.Version` to select the MCP contract. The default is 2026-07-28, which documents modern Streamable HTTP with per-request metadata and protocol headers. The 2025 revisions document the earlier initialize-handshake Streamable HTTP contract, and 2024-11-05 documents the separate legacy HTTP+SSE endpoints. For Streamable HTTP, the documented root operations follow `SessionMode`: stateless mode exposes only `POST`, while stateful and hybrid modes also expose the session `GET` and `DELETE` operations. If tool discovery is enabled, the filter automatically discovers and documents available MCP tools.
 
