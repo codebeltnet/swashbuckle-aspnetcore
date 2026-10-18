@@ -7,7 +7,7 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
-## [10.2.7] - 2026-10-18
+## [10.3.0] - 2026-10-18
 
 This release includes minor API additions for selecting MCP documentation revisions and configuring individual OpenAPI documents, together with dependency and repository maintenance.
 
@@ -318,7 +318,7 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
-[10.2.7]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.6...v10.2.7
+[10.3.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.6...v10.3.0
 [10.2.6]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.5...v10.2.6
 [10.2.5]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.4...v10.2.5
 [10.2.4]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.3...v10.2.4
