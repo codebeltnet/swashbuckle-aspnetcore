@@ -7,6 +7,10 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [10.2.7] - 2026-10-18
+
+This is a service update that focuses on package dependencies.
+
 ## [10.2.6] - 2026-09-14
 
 This is a patch release focused on Model Context Protocol (MCP) transport modernization, test infrastructure updates, and dependency maintenance. The MCP Streamable HTTP transport now supports modern protocol features including session-aware initialization with stateful, stateless, and hybrid modes; test infrastructure has been modernized to use Microsoft.Testing.Extensions.CodeCoverage and Microsoft.Testing.Platform; and all Codebelt, Microsoft, and xunit dependencies have been updated to their latest compatible versions.
