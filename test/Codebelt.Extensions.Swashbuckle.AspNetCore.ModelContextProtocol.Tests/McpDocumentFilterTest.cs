@@ -110,6 +110,24 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
         }
 
         [Fact]
+        public void Apply_ShouldPreserveExistingPaths_WhenDocumentAlreadyHasPaths()
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions());
+            var doc = new OpenApiDocument
+            {
+                Paths = new OpenApiPaths
+                {
+                    ["/health"] = new OpenApiPathItem()
+                }
+            };
+
+            sut.Apply(doc, null);
+
+            Assert.Contains("/health", doc.Paths.Keys);
+            Assert.Contains("/mcp", doc.Paths.Keys);
+        }
+
+        [Fact]
         public void Apply_ShouldUseCustomTagName_WhenTagNameIsOverridden()
         {
             var sut = new McpDocumentFilter(new McpDocumentOptions { TagName = "AI" });
@@ -230,12 +248,194 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             Assert.Contains("server/discover", operation.Description);
 
             var requestSchema = Assert.IsType<OpenApiSchema>(operation.RequestBody.Content["application/json"].Schema);
+            Assert.Contains("method", requestSchema.Required);
+            Assert.Null(requestSchema.OneOf);
             var parametersSchema = Assert.IsType<OpenApiSchema>(requestSchema.Properties["params"]);
             var metadataSchema = Assert.IsType<OpenApiSchema>(parametersSchema.Properties["_meta"]);
             Assert.Contains("params", requestSchema.Required);
             Assert.Contains("_meta", parametersSchema.Required);
             Assert.Contains("io.modelcontextprotocol/protocolVersion", metadataSchema.Required);
             Assert.Contains("io.modelcontextprotocol/clientCapabilities", metadataSchema.Required);
+        }
+
+        [Theory]
+        [InlineData("2026-07-28")]
+        [InlineData("2025-11-25")]
+        [InlineData("2025-06-18")]
+        [InlineData("2025-03-26")]
+        [InlineData("2024-11-05")]
+        public void Apply_ShouldDocumentEverySupportedVersion(string protocolVersion)
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions
+            {
+                IncludeTools = false,
+                Version = protocolVersion
+            });
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            Assert.Contains(doc.Tags, tag => tag.Name == "MCP");
+            if (protocolVersion == "2024-11-05")
+            {
+                Assert.DoesNotContain("/mcp", doc.Paths.Keys);
+                Assert.Contains("/mcp/sse", doc.Paths.Keys);
+                Assert.Contains("/mcp/message", doc.Paths.Keys);
+            }
+            else
+            {
+                var operation = doc.Paths["/mcp"].Operations[HttpMethod.Post];
+                Assert.Contains(protocolVersion, operation.Description);
+            }
+        }
+
+        [Theory]
+        [InlineData("2025-11-25")]
+        [InlineData("2025-06-18")]
+        public void Apply_ShouldDocumentNegotiatedProtocolHeader_ForSessionBasedStreamableHttpVersions(string protocolVersion)
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions
+            {
+                IncludeTools = false,
+                Version = protocolVersion
+            });
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            var operation = doc.Paths["/mcp"].Operations[HttpMethod.Post];
+            var protocolHeader = Assert.Single(operation.Parameters, parameter => parameter.Name == "MCP-Protocol-Version");
+            Assert.False(protocolHeader.Required);
+            var protocolHeaderSchema = Assert.IsType<OpenApiSchema>(protocolHeader.Schema);
+            Assert.Equal(protocolVersion, Assert.Single(protocolHeaderSchema.Enum).GetValue<string>());
+            Assert.DoesNotContain(operation.Parameters, parameter => parameter.Name == "Mcp-Method");
+            Assert.DoesNotContain(operation.Parameters, parameter => parameter.Name == "Mcp-Name");
+
+            var requestSchema = Assert.IsType<OpenApiSchema>(operation.RequestBody.Content["application/json"].Schema);
+            var requestMessageSchema = Assert.IsType<OpenApiSchema>(requestSchema.OneOf[0]);
+            var parametersSchema = Assert.IsType<OpenApiSchema>(requestMessageSchema.Properties["params"]);
+            Assert.DoesNotContain("params", requestMessageSchema.Required);
+            Assert.Null(parametersSchema.Required);
+        }
+
+        [Fact]
+        public void Apply_ShouldDocumentBatchRequests_ForMarch2025StreamableHttp()
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions
+            {
+                IncludeTools = false,
+                Version = "2025-03-26"
+            });
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            var operation = doc.Paths["/mcp"].Operations[HttpMethod.Post];
+            Assert.DoesNotContain(operation.Parameters, parameter => parameter.Name == "MCP-Protocol-Version");
+            Assert.DoesNotContain(operation.Parameters, parameter => parameter.Name == "Mcp-Method");
+            Assert.DoesNotContain(operation.Parameters, parameter => parameter.Name == "Mcp-Name");
+            Assert.Contains("batch array", operation.RequestBody.Description);
+
+            var requestSchema = Assert.IsType<OpenApiSchema>(operation.RequestBody.Content["application/json"].Schema);
+            Assert.Equal(2, requestSchema.OneOf.Count);
+            var singleMessageSchema = Assert.IsType<OpenApiSchema>(requestSchema.OneOf[0]);
+            AssertJsonRpcRequestAndResponseSchema(singleMessageSchema);
+            var batchSchema = Assert.IsType<OpenApiSchema>(requestSchema.OneOf[1]);
+            Assert.Equal(JsonSchemaType.Array, batchSchema.Type);
+            Assert.NotNull(batchSchema.Items);
+            AssertJsonRpcRequestAndResponseSchema(Assert.IsType<OpenApiSchema>(batchSchema.Items));
+        }
+
+        [Theory]
+        [InlineData("2025-11-25")]
+        [InlineData("2025-06-18")]
+        [InlineData("2025-03-26")]
+        public void Apply_ShouldDocumentClientResponses_For2025StreamableHttpVersions(string protocolVersion)
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions
+            {
+                IncludeTools = false,
+                Version = protocolVersion
+            });
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            var operation = doc.Paths["/mcp"].Operations[HttpMethod.Post];
+            var requestSchema = Assert.IsType<OpenApiSchema>(operation.RequestBody.Content["application/json"].Schema);
+            var singleMessageSchema = protocolVersion == "2025-03-26"
+                ? Assert.IsType<OpenApiSchema>(requestSchema.OneOf[0])
+                : requestSchema;
+
+            AssertJsonRpcRequestAndResponseSchema(singleMessageSchema);
+        }
+
+        [Fact]
+        public void Apply_ShouldKeepLegacyExamplesFreeOfModernMetadata()
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions
+            {
+                Version = "2025-11-25"
+            });
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            var request = doc.Paths["/mcp"].Operations[HttpMethod.Post].RequestBody.Content["application/json"];
+            var example = Assert.IsType<OpenApiExample>(request.Examples["snake_case_tool"]);
+            var value = Assert.IsType<JsonObject>(example.Value);
+            var parameters = Assert.IsType<JsonObject>(value["params"]);
+
+            Assert.Null(parameters["_meta"]);
+        }
+
+        [Fact]
+        public void Apply_ShouldDocumentLegacyHttpSseTransport_ForNovember2024()
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions
+            {
+                IncludeTools = false,
+                Version = "2024-11-05"
+            });
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            Assert.False(doc.Paths.ContainsKey("/mcp"));
+            Assert.Equal("mcp-sse", doc.Paths["/mcp/sse"].Operations[HttpMethod.Get].OperationId);
+            Assert.Equal("mcp-sse-message", doc.Paths["/mcp/message"].Operations[HttpMethod.Post].OperationId);
+            Assert.Contains("2024-11-05", doc.Paths["/mcp/sse"].Operations[HttpMethod.Get].Description);
+
+            var messageRequestSchema = Assert.IsType<OpenApiSchema>(doc.Paths["/mcp/message"].Operations[HttpMethod.Post].RequestBody.Content["application/json"].Schema);
+            Assert.Contains("method", messageRequestSchema.Required);
+            Assert.Null(messageRequestSchema.OneOf);
+        }
+
+        [Fact]
+        public void Apply_ShouldRejectUnsupportedProtocolVersion()
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions { Version = "unsupported" });
+
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(() => sut.Apply(new OpenApiDocument(), null));
+
+            Assert.Equal("options", exception.ParamName);
+            Assert.Contains("2026-07-28", exception.Message);
+            Assert.Contains("2024-11-05", exception.Message);
+        }
+
+        [Fact]
+        public void Apply_ShouldOmitToolExamplesAndTable_WhenToolDiscoveryIsDisabled()
+        {
+            var sut = new McpDocumentFilter(new McpDocumentOptions { IncludeTools = false });
+            var doc = new OpenApiDocument();
+
+            sut.Apply(doc, null);
+
+            var operation = doc.Paths["/mcp"].Operations[HttpMethod.Post];
+            var request = operation.RequestBody.Content["application/json"];
+
+            Assert.Null(request.Examples);
+            Assert.DoesNotContain("Available tools", operation.Description);
         }
 
         [Fact]
@@ -333,6 +533,24 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
 
             Assert.Contains("| `custom_tool` |", operation.Description);
             Assert.Contains("| `custom_tool` | — | custom_tool |", operation.Description);
+        }
+
+        private static void AssertJsonRpcRequestAndResponseSchema(OpenApiSchema schema)
+        {
+            Assert.NotNull(schema.OneOf);
+            Assert.Equal(2, schema.OneOf.Count);
+
+            var requestSchema = Assert.IsType<OpenApiSchema>(schema.OneOf[0]);
+            Assert.Contains("jsonrpc", requestSchema.Required);
+            Assert.Contains("method", requestSchema.Required);
+
+            var responseSchema = Assert.IsType<OpenApiSchema>(schema.OneOf[1]);
+            Assert.Contains("jsonrpc", responseSchema.Required);
+            Assert.Contains("id", responseSchema.Required);
+            Assert.Contains("method", Assert.IsType<OpenApiSchema>(responseSchema.Not).Required);
+            Assert.Equal(2, responseSchema.OneOf.Count);
+            Assert.Contains("result", Assert.IsType<OpenApiSchema>(responseSchema.OneOf[0]).Required);
+            Assert.Contains("error", Assert.IsType<OpenApiSchema>(responseSchema.OneOf[1]).Required);
         }
 
         [McpServerToolType]

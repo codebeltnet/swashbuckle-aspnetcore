@@ -36,6 +36,28 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
         }
 
         [Fact]
+        public void AddMcpServer_ShouldAddDocumentScopedMcpDocumentFilterDescriptor()
+        {
+            var options = new SwaggerGenOptions();
+
+            options.AddMcpServer("legacy-mcp", mcp => mcp.Version = "2025-11-25");
+
+            var descriptor = Assert.Single(options.DocumentFilterDescriptors);
+            Assert.True(typeof(McpDocumentFilter).IsAssignableFrom(descriptor.Type));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void AddMcpServer_ShouldRejectMissingDocumentName(string documentName)
+        {
+            var options = new SwaggerGenOptions();
+
+            Assert.ThrowsAny<ArgumentException>(() => options.AddMcpServer(documentName, _ => { }));
+        }
+
+        [Fact]
         public void AddMcpServer_ShouldApplyCustomOptions_WhenSetupIsProvided()
         {
             var customOptions = new McpDocumentOptions
@@ -44,7 +66,8 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
                 TagName = "Custom",
                 IncludeTools = false,
                 SessionMode = HttpServerSessionMode.Stateful,
-                EnableLegacySse = true
+                EnableLegacySse = true,
+                Version = "2025-11-25"
             };
             var filter = new McpDocumentFilter(customOptions);
 
@@ -53,6 +76,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             Assert.False(filter.Options.IncludeTools);
             Assert.Equal(HttpServerSessionMode.Stateful, filter.Options.SessionMode);
             Assert.True(filter.Options.EnableLegacySse);
+            Assert.Equal("2025-11-25", filter.Options.Version);
         }
 
         [Fact]
@@ -65,6 +89,7 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol
             Assert.True(filter.Options.IncludeTools);
             Assert.Equal(HttpServerSessionMode.Stateless, filter.Options.SessionMode);
             Assert.False(filter.Options.EnableLegacySse);
+            Assert.Equal("2026-07-28", filter.Options.Version);
         }
     }
 }

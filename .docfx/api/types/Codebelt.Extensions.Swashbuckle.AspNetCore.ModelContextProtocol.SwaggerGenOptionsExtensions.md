@@ -8,6 +8,8 @@ To enable MCP server documentation in your OpenAPI specification, call `AddMcpSe
 ```csharp
 using Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi;
+using ModelContextProtocol.AspNetCore;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace YourApp.Configuration;
@@ -37,11 +39,30 @@ public class SwaggerMcpSetup
                 o.Pattern = "/mcp";
                 o.TagName = "AI Tools";
                 o.IncludeTools = true;
+                o.Version = "2025-11-25";
             });
+        });
+    }
+
+    public void ConfigureServicesWithSeparateMcpDocuments(IServiceCollection services)
+    {
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("legacy-mcp", new OpenApiInfo { Title = "Legacy MCP", Version = "2025-11-25" });
+            options.SwaggerDoc("modern-mcp", new OpenApiInfo { Title = "Modern MCP", Version = "2026-07-28" });
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Initialize MCP", Version = "2026-07-28" });
+
+            options.AddMcpServer("legacy-mcp", mcp =>
+            {
+                mcp.Version = "2025-11-25";
+                mcp.SessionMode = HttpServerSessionMode.Stateful;
+            });
+            options.AddMcpServer("modern-mcp", mcp => mcp.Version = "2026-07-28");
+            options.AddMcpServer("v1", mcp => mcp.SessionMode = HttpServerSessionMode.StatefulForInitializeClients);
         });
     }
 }
 ```
 
-The `AddMcpServer` method accepts an optional configuration action for `McpDocumentOptions`. When called without arguments, it uses default values: an MCP endpoint at `/mcp`, grouped under the "MCP" tag, with automatic tool discovery enabled. The method internally creates a `McpDocumentFilter` and registers it as a document filter, so the filter is invoked during OpenAPI document generation to add MCP endpoint paths and operations.
+The overload without a document name accepts an optional configuration action for `McpDocumentOptions`. When called without arguments, it uses the defaults: an MCP endpoint at `/mcp`, grouped under the "MCP" tag, with automatic tool discovery enabled. The document-name overload accepts a required configuration action and applies those options only when Swashbuckle generates the matching document. Call it once per document to publish different MCP specification revisions or session modes from the same application.
 

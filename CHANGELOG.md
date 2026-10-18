@@ -7,6 +7,33 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [10.3.0] - 2026-10-18
+
+This release includes minor API additions for selecting MCP documentation revisions and configuring individual OpenAPI documents, together with dependency and repository maintenance.
+
+### Added
+
+- `McpDocumentOptions.Version` for selecting MCP revisions 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26, and 2024-11-05, with revision-specific transports, protocol headers, metadata, request schemas, and examples,
+- `McpDocumentOptions.ValidateOptions` and `IValidatableParameterObject` support to reject missing or unsupported protocol revisions,
+- `SwaggerGenOptionsExtensions.AddMcpServer` overload accepting a document name and configuration action, allowing each OpenAPI document to use its own MCP revision and session mode,
+- `Codebelt.Coverlet.MTP` 10.1.0 and `Microsoft.Testing.Extensions.HangDump` 2.5.1 as shared test dependencies,
+- Nginx configuration that listens on port 8080, caches fingerprinted DocFX assets, and disables caching for stable page URLs.
+
+### Changed
+
+- Upgraded `Codebelt.Bootstrapper.Web` from 5.2.1 to 5.2.2, `Codebelt.Extensions.Asp.Versioning` from 10.2.4 to 10.2.5, `Codebelt.Extensions.Xunit.App` from 12.0.1 to 12.0.2, and `Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json` from 10.7.1 to 10.8.1,
+- Upgraded `Microsoft.AspNetCore.OpenApi` from 10.0.11 to 10.0.13, `Microsoft.NET.Test.Sdk` from 18.10.0 to 18.11.0, and `Swashbuckle.AspNetCore` from 10.2.3 to 10.3.0,
+- Upgraded `xunit.v3` and `xunit.v3.runner.console` from 4.0.1 to 4.0.2 and `xunit.runner.visualstudio` from 4.0.0 to 4.0.1,
+- Consolidated unit-test, benchmark, and XML documentation guidance into `AGENTS.md`, preserving examples and explicit file scopes,
+- Updated DocFX hosting to DHI nginx and the `codebeltnet/docfx:2` image; configured separate member pages, the shared style template, and sitemap metadata,
+- Updated contributor test commands for the Microsoft.Testing.Platform runner,
+- Updated service-update automation to resolve the next patch from stable Git tags, reuse pending changelog entries, and preserve their content.
+
+### Removed
+
+- Direct test dependency on `Microsoft.Testing.Extensions.CodeCoverage`,
+- Deprecated `.github/copilot-instructions.md`; its guidance is maintained in `AGENTS.md`.
+
 ## [10.2.6] - 2026-09-14
 
 This is a patch release focused on Model Context Protocol (MCP) transport modernization, test infrastructure updates, and dependency maintenance. The MCP Streamable HTTP transport now supports modern protocol features including session-aware initialization with stateful, stateless, and hybrid modes; test infrastructure has been modernized to use Microsoft.Testing.Extensions.CodeCoverage and Microsoft.Testing.Platform; and all Codebelt, Microsoft, and xunit dependencies have been updated to their latest compatible versions.
@@ -291,6 +318,7 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
+[10.3.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.6...v10.3.0
 [10.2.6]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.5...v10.2.6
 [10.2.5]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.4...v10.2.5
 [10.2.4]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.3...v10.2.4
