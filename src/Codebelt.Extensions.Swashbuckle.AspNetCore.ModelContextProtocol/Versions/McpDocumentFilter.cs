@@ -35,6 +35,8 @@ internal abstract class McpDocumentFilter
 
     protected virtual bool SupportsProtocolVersionHeader => false;
 
+    protected virtual bool SupportsClientResponses => false;
+
     protected virtual bool SupportsBatchRequests => false;
 
     internal void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
@@ -234,7 +236,10 @@ internal abstract class McpDocumentFilter
     {
         var requestMediaType = new OpenApiMediaType
         {
-            Schema = CreateJsonRpc2RequestSchema(requireModernMetadata: RequiresModernMetadata, allowBatch: SupportsBatchRequests)
+            Schema = CreateJsonRpc2RequestSchema(
+                requireModernMetadata: RequiresModernMetadata,
+                allowBatch: SupportsBatchRequests,
+                allowResponses: SupportsClientResponses)
         };
         if (tools?.Count > 0)
             requestMediaType.Examples = tools.ToDictionary(
@@ -492,7 +497,7 @@ internal abstract class McpDocumentFilter
         };
     }
 
-    private OpenApiSchema CreateJsonRpc2RequestSchema(bool requireModernMetadata = false, bool allowBatch = false)
+    private OpenApiSchema CreateJsonRpc2RequestSchema(bool requireModernMetadata = false, bool allowBatch = false, bool allowResponses = false)
     {
         var metadataSchema = new OpenApiSchema
         {
@@ -567,15 +572,23 @@ internal abstract class McpDocumentFilter
             parametersSchema.Required = new HashSet<string> { "_meta" };
         }
 
+        var messageSchema = allowResponses
+            ? new OpenApiSchema
+            {
+                Description = "A JSON-RPC 2.0 request, notification, or response object.",
+                OneOf = new List<IOpenApiSchema> { schema, CreateJsonRpc2ResponseSchema() }
+            }
+            : schema;
+
         if (allowBatch)
         {
-            var batchItemSchema = CreateJsonRpc2RequestSchema();
+            var batchItemSchema = CreateJsonRpc2RequestSchema(allowResponses: allowResponses);
             return new OpenApiSchema
             {
                 Description = "A JSON-RPC 2.0 request, notification, response, or batch array.",
                 OneOf = new List<IOpenApiSchema>
                 {
-                    schema,
+                    messageSchema,
                     new OpenApiSchema
                     {
                         Type = JsonSchemaType.Array,
@@ -586,7 +599,7 @@ internal abstract class McpDocumentFilter
             };
         }
 
-        return schema;
+        return messageSchema;
     }
 
     private OpenApiSchema CreateJsonRpc2ResponseSchema()
@@ -606,6 +619,16 @@ internal abstract class McpDocumentFilter
         {
             Type = JsonSchemaType.Object,
             Description = "JSON-RPC 2.0 response or error envelope.",
+            Required = new HashSet<string> { "jsonrpc", "id" },
+            Not = new OpenApiSchema
+            {
+                Required = new HashSet<string> { "method" }
+            },
+            OneOf = new List<IOpenApiSchema>
+            {
+                new OpenApiSchema { Required = new HashSet<string> { "result" } },
+                new OpenApiSchema { Required = new HashSet<string> { "error" } }
+            },
             Properties = new Dictionary<string, IOpenApiSchema>
             {
                 ["jsonrpc"] = new OpenApiSchema

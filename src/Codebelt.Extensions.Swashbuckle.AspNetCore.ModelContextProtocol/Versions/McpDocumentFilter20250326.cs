@@ -6,5 +6,7 @@ internal sealed class McpDocumentFilter20250326 : McpDocumentFilter
     {
     }
 
+    protected override bool SupportsClientResponses => true;
+
     protected override bool SupportsBatchRequests => true;
 }

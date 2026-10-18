@@ -7,4 +7,6 @@ internal sealed class McpDocumentFilter20251125 : McpDocumentFilter
     }
 
     protected override bool SupportsProtocolVersionHeader => true;
+
+    protected override bool SupportsClientResponses => true;
 }
