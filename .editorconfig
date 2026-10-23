@@ -57,8 +57,10 @@ indent_size = 4
 
 # IDE0161: Namespace declaration preferences
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0161
+# Namespaces must be file-scoped (namespace X;). Block-scoped namespaces (namespace X { }) fail the build.
+# Build-time enforcement requires EnforceCodeStyleInBuild=true (see Directory.Build.props).
 [*.cs]
-csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_style_namespace_declarations = file_scoped:error
 
 # Top-level statements: DO NOT USE
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0210-ide0211
