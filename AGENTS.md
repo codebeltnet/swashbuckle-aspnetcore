@@ -4,7 +4,7 @@ This document provides guidance for AI agents working in this repository.
 
 ## Project Overview
 
-Codebelt.Extensions.Swashbuckle.AspNetCore is a suite of .NET libraries providing uniform, opinionated, and extensible APIs for Swagger and OpenAPI documentation with ASP.NET Core. The solution targets .NET 10.0 and .NET 9.0. It includes:
+Codebelt.Extensions.Swashbuckle.AspNetCore is a suite of .NET libraries providing uniform, opinionated, and extensible APIs for Swagger and OpenAPI documentation with ASP.NET Core. The solution targets .NET 11.0 and .NET 10.0. It includes:
 
 - **Codebelt.Extensions.Swashbuckle.AspNetCore** — Core extensions for Swagger/OpenAPI generation, customization, and configuration with ASP.NET Core.
 - **Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol** — Model Context Protocol (MCP) integration for Swagger/OpenAPI documentation discovery and tooling.
