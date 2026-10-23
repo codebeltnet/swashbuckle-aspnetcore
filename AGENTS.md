@@ -13,7 +13,7 @@ Codebelt.Extensions.Swashbuckle.AspNetCore is a suite of .NET libraries providin
 
 - **Text encoding:** UTF-8 for text files (enforced via `.editorconfig`)
 - **Template rewrites:** Preserve UTF-8 explicitly when scripts or tools rewrite text files; avoid locale-dependent encoding defaults
-- **Namespaces:** File-scoped namespaces are required (enforced via `.editorconfig`)
+- **Namespaces:** Use file-scoped namespaces (`namespace X;`) in every C# file, including test, benchmark, and tooling files. Block-scoped `namespace X { }` declarations must not be added, and any block-scoped file you modify must be converted in the same change. Enforced as a build error via IDE0161 (`file_scoped:error`) in `.editorconfig`, with `EnforceCodeStyleInBuild` enabled in `Directory.Build.props`
 - **Top-level statements:** Not allowed (enforced via `.editorconfig`)
 - **Language version:** Always use the latest C# features (`LangVersion=latest`)
 - **Nullable:** Enable nullable reference types in all new code
@@ -146,16 +146,15 @@ This ensures consistent setup, teardown, and output handling across all tests.
 using Codebelt.Extensions.Xunit;
 using Xunit;
 
-namespace Your.Namespace
-{
-    public class YourTestClass : Test
-    {
-        public YourTestClass(ITestOutputHelper output) : base(output)
-        {
-        }
+namespace Your.Namespace;
 
-        // Your tests here
+public class YourTestClass : Test
+{
+    public YourTestClass(ITestOutputHelper output) : base(output)
+    {
     }
+
+    // Your tests here
 }
 ```
 
@@ -180,22 +179,20 @@ namespace Your.Namespace
 - Use namespaces that mirror the source code structure. The namespace of a test file MUST match the namespace of the System Under Test (SUT). Do NOT append ".Tests", ".Benchmarks" or similar suffixes to the namespace. Only the assembly/project name should indicate that the file is a test/benchmark (for example: YourProject.Foo.Tests assembly, but namespace YourProject.Foo).
     - Example: If the SUT class is declared as:
         ```csharp
-        namespace YourProject.Foo.Bar
-        {
-                public class Zoo { /* ... */ }
-        }
+        namespace YourProject.Foo.Bar;
+
+        public class Zoo { /* ... */ }
         ```
         then the corresponding unit test class must use the exact same namespace:
         ```csharp
-        namespace YourProject.Foo.Bar
-        {
-                public class ZooTest : Test { /* ... */ }
-        }
+        namespace YourProject.Foo.Bar;
+
+        public class ZooTest : Test { /* ... */ }
         ```
     - Do NOT use:
         ```csharp
-        namespace YourProject.Foo.Bar.Tests { /* ... */ } // ❌
-        namespace YourProject.Foo.Bar.Benchmarks { /* ... */ } // ❌
+        namespace YourProject.Foo.Bar.Tests; // ❌
+        namespace YourProject.Foo.Bar.Benchmarks; // ❌
         ```
  - The unit tests for the YourProject.Foo assembly live in the YourProject.Foo.Tests assembly.
  - The functional tests for the YourProject.Foo assembly live in the YourProject.Foo.FunctionalTests assembly.
@@ -220,47 +217,46 @@ using System.Globalization;
 using Codebelt.Extensions.Xunit;
 using Xunit;
 
-namespace YourProject
+namespace YourProject;
+
+/// <summary>
+/// Tests for the <see cref="DateSpan"/> class.
+/// </summary>
+public class DateSpanTest : Test
 {
-    /// <summary>
-    /// Tests for the <see cref="DateSpan"/> class.
-    /// </summary>
-    public class DateSpanTest : Test
+    public DateSpanTest(ITestOutputHelper output) : base(output)
     {
-        public DateSpanTest(ITestOutputHelper output) : base(output)
-        {
-        }
+    }
 
-        [Fact]
-        public void Parse_ShouldGetOneMonthOfDifference_UsingIso8601String()
-        {
-            var start = new DateTime(2021, 3, 5).ToString("O");
-            var end = new DateTime(2021, 4, 5).ToString("O");
+    [Fact]
+    public void Parse_ShouldGetOneMonthOfDifference_UsingIso8601String()
+    {
+        var start = new DateTime(2021, 3, 5).ToString("O");
+        var end = new DateTime(2021, 4, 5).ToString("O");
 
-            var span = DateSpan.Parse(start, end);
+        var span = DateSpan.Parse(start, end);
 
-            Assert.Equal("0:01:31:00:00:00.0", span.ToString());
-            Assert.Equal(0, span.Years);
-            Assert.Equal(1, span.Months);
-            Assert.Equal(31, span.Days);
-            Assert.Equal(0, span.Hours);
-            Assert.Equal(0, span.Minutes);
-            Assert.Equal(0, span.Seconds);
-            Assert.Equal(0, span.Milliseconds);
+        Assert.Equal("0:01:31:00:00:00.0", span.ToString());
+        Assert.Equal(0, span.Years);
+        Assert.Equal(1, span.Months);
+        Assert.Equal(31, span.Days);
+        Assert.Equal(0, span.Hours);
+        Assert.Equal(0, span.Minutes);
+        Assert.Equal(0, span.Seconds);
+        Assert.Equal(0, span.Milliseconds);
 
-            Assert.Equal(0.08493150684931507, span.TotalYears);
-            Assert.Equal(1, span.TotalMonths);
-            Assert.Equal(31, span.TotalDays);
-            Assert.Equal(744, span.TotalHours);
-            Assert.Equal(44640, span.TotalMinutes);
-            Assert.Equal(2678400, span.TotalSeconds);
-            Assert.Equal(2678400000, span.TotalMilliseconds);
+        Assert.Equal(0.08493150684931507, span.TotalYears);
+        Assert.Equal(1, span.TotalMonths);
+        Assert.Equal(31, span.TotalDays);
+        Assert.Equal(744, span.TotalHours);
+        Assert.Equal(44640, span.TotalMinutes);
+        Assert.Equal(2678400, span.TotalSeconds);
+        Assert.Equal(2678400000, span.TotalMilliseconds);
 
-            Assert.Equal(6, span.GetWeeks());
-            Assert.Equal(-1566296493, span.GetHashCode());
+        Assert.Equal(6, span.GetWeeks());
+        Assert.Equal(-1566296493, span.GetHashCode());
 
-            TestOutput.WriteLine(span.ToString());
-        }
+        TestOutput.WriteLine(span.ToString());
     }
 }
 ```
@@ -342,11 +338,10 @@ This document provides guidance for writing performance tests (benchmarks) for a
 - Place benchmark files in the appropriate benchmark project and folder structure.
 - Use namespaces that mirror the source code structure, e.g. do not suffix with `Benchmarks`.
 Namespace rule: DO NOT append `.Benchmarks` to the namespace. Benchmarks must live in the same namespace as the production assembly. Example: if the production assembly uses `namespace YourProject.Security.Cryptography`, the benchmark file should also use:
-  ```
-  namespace YourProject.Security.Cryptography
-  {
-      public class Sha512256Benchmark { /* ... */ }
-  }
+  ```csharp
+  namespace YourProject.Security.Cryptography;
+
+  public class Sha512256Benchmark { /* ... */ }
   ```
 The class name must end with `Benchmark`, but the namespace must match the assembly (no `.Benchmarks` suffix).
 - The benchmarks for the YourProject.Bar assembly live in the YourProject.Bar.Benchmarks assembly.
@@ -382,30 +377,29 @@ The class name must end with `Benchmark`, but the namespace must match the assem
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 
-namespace YourProject
+namespace YourProject;
+
+[MemoryDiagnoser]
+[GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
+public class SampleOperationBenchmark
 {
-    [MemoryDiagnoser]
-    [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
-    public class SampleOperationBenchmark
+    [Params(8, 256, 4096)]
+    public int Count { get; set; }
+
+    private byte[] _payload;
+
+    [GlobalSetup]
+    public void Setup()
     {
-        [Params(8, 256, 4096)]
-        public int Count { get; set; }
-
-        private byte[] _payload;
-
-        [GlobalSetup]
-        public void Setup()
-        {
-            _payload = new byte[Count];
-            // deterministic initialization
-        }
-
-        [Benchmark(Baseline = true, Description = "Operation - baseline")]
-        public int Operation_Baseline() => SampleOperation.Process(_payload);
-
-        [Benchmark(Description = "Operation - optimized")]
-        public int Operation_Optimized() => SampleOperation.ProcessOptimized(_payload);
+        _payload = new byte[Count];
+        // deterministic initialization
     }
+
+    [Benchmark(Baseline = true, Description = "Operation - baseline")]
+    public int Operation_Baseline() => SampleOperation.Process(_payload);
+
+    [Benchmark(Description = "Operation - optimized")]
+    public int Operation_Optimized() => SampleOperation.ProcessOptimized(_payload);
 }
 ```
 
@@ -442,314 +436,324 @@ using Cuemon.Configuration;
 using Cuemon.IO;
 using Cuemon.Text;
 
-namespace Cuemon.Security
+namespace Cuemon.Security;
+
+/// <summary>
+/// Represents the base class from which all implementations of hash algorithms and checksums should derive.
+/// </summary>
+/// <typeparam name="TOptions">The type of the configured options.</typeparam>
+/// <seealso cref="ConvertibleOptions"/>
+/// <seealso cref="IConfigurable{TOptions}" />
+/// <seealso cref="IHash" />
+public abstract class Hash<TOptions> : Hash, IConfigurable<TOptions> where TOptions : ConvertibleOptions, new()
 {
     /// <summary>
-    /// Represents the base class from which all implementations of hash algorithms and checksums should derive.
+    /// Initializes a new instance of the <see cref="Hash{TOptions}"/> class.
     /// </summary>
-    /// <typeparam name="TOptions">The type of the configured options.</typeparam>
-    /// <seealso cref="ConvertibleOptions"/>
-    /// <seealso cref="IConfigurable{TOptions}" />
-    /// <seealso cref="IHash" />
-    public abstract class Hash<TOptions> : Hash, IConfigurable<TOptions> where TOptions : ConvertibleOptions, new()
+    /// <param name="setup">The <see cref="ConvertibleOptions" /> which may be configured.</param>
+    protected Hash(Action<TOptions> setup)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Hash{TOptions}"/> class.
-        /// </summary>
-        /// <param name="setup">The <see cref="ConvertibleOptions" /> which may be configured.</param>
-        protected Hash(Action<TOptions> setup)
-        {
-            Options = Patterns.Configure(setup);
-        }
-
-        /// <summary>
-        /// Gets the configured options of this instance.
-        /// </summary>
-        /// <value>The configured options of this instance.</value>
-        public TOptions Options { get; }
-
-
-        /// <summary>
-        /// The endian-initializer of this instance.
-        /// </summary>
-        /// <param name="options">An instance of the configured options.</param>
-        protected sealed override void EndianInitializer(EndianOptions options)
-        {
-            options.ByteOrder = Options.ByteOrder;
-        }
+        Options = Patterns.Configure(setup);
     }
 
     /// <summary>
-    /// Represents the base class that defines the public facing structure to expose.
+    /// Gets the configured options of this instance.
     /// </summary>
-    /// <seealso cref="IHash" />
-    public abstract class Hash : IHash
+    /// <value>The configured options of this instance.</value>
+    public TOptions Options { get; }
+
+
+    /// <summary>
+    /// The endian-initializer of this instance.
+    /// </summary>
+    /// <param name="options">An instance of the configured options.</param>
+    protected sealed override void EndianInitializer(EndianOptions options)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Hash"/> class.
-        /// </summary>
-        protected Hash()
-        {
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="bool"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="bool"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(bool input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="byte"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="byte"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(byte input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="char"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="char"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(char input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="DateTime"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="DateTime"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(DateTime input)
-        {
-            return ComputeHash(Convertible.GetBytes(input));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="DBNull"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="DBNull"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(DBNull input)
-        {
-            return ComputeHash(Convertible.GetBytes(input));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="decimal"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="decimal"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(decimal input)
-        {
-            return ComputeHash(Convertible.GetBytes(input));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="double"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="double"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(double input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="short"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="short"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(short input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="int"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="int"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(int input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="long"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="long"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(long input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="sbyte"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="sbyte"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(sbyte input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="float"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="float"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(float input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="ushort"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="ushort"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(ushort input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="uint"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="uint"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(uint input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="ulong"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="ulong"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(ulong input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="string"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="string"/> to compute the hash code for.</param>
-        /// <param name="setup">The <see cref="EncodingOptions"/> which may be configured.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(string input, Action<EncodingOptions> setup = null)
-        {
-            return ComputeHash(Convertible.GetBytes(input, setup));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="Enum"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="Enum"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(Enum input)
-        {
-            return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="T:IConvertible[]"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="T:IConvertible[]"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(params IConvertible[] input)
-        {
-            return ComputeHash(Arguments.ToEnumerableOf(input));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified sequence of <see cref="IConvertible"/>.
-        /// </summary>
-        /// <param name="input">The sequence of <see cref="IConvertible"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(IEnumerable<IConvertible> input)
-        {
-            return ComputeHash(Convertible.GetBytes(input));
-        }
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="T:byte[]"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="T:byte[]"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public abstract HashResult ComputeHash(byte[] input);
-
-        /// <summary>
-        /// Computes the hash value for the specified <see cref="Stream"/>.
-        /// </summary>
-        /// <param name="input">The <see cref="Stream"/> to compute the hash code for.</param>
-        /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
-        public virtual HashResult ComputeHash(Stream input)
-        {
-            return ComputeHash(Patterns.SafeInvoke(() => new MemoryStream(), destination =>
-            {
-                Decorator.Enclose(input).CopyStream(destination);
-                return destination;
-            }).ToArray());
-        }
-
-        /// <summary>
-        /// Defines the initializer that <see cref="Hash{TOptions}"/> must implement.
-        /// </summary>
-        /// <param name="options">An instance of the configured options.</param>
-        protected abstract void EndianInitializer(EndianOptions options);
+        options.ByteOrder = Options.ByteOrder;
     }
 }
 
-namespace Cuemon.Security
+/// <summary>
+/// Represents the base class that defines the public facing structure to expose.
+/// </summary>
+/// <seealso cref="IHash" />
+public abstract class Hash : IHash
 {
     /// <summary>
-    /// Configuration options for <see cref="FowlerNollVoHash"/>.
+    /// Initializes a new instance of the <see cref="Hash"/> class.
     /// </summary>
-    public class FowlerNollVoOptions : ConvertibleOptions
+    protected Hash()
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FowlerNollVoOptions"/> class.
-        /// </summary>
-        /// <remarks>
-        /// The following table shows the initial property values for an instance of <see cref="FowlerNollVoOptions"/>.
-        /// <list type="table">
-        ///     <listheader>
-        ///         <term>Property</term>
-        ///         <description>Initial Value</description>
-        ///     </listheader>
-        ///     <item>
-        ///         <term><see cref="EndianOptions.ByteOrder"/></term>
-        ///         <description><see cref="Endianness.BigEndian"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <term><see cref="Algorithm"/></term>
-        ///         <description><see cref="FowlerNollVoAlgorithm.Fnv1a"/></description>
-        ///     </item>
-        /// </list>
-        /// </remarks>
-        public FowlerNollVoOptions()
-        {
-            Algorithm = FowlerNollVoAlgorithm.Fnv1a;
-            ByteOrder = Endianness.BigEndian;
-        }
-
-        /// <summary>
-        /// Gets or sets the algorithm of the Fowler-Noll-Vo hash function.
-        /// </summary>
-        /// <value>The algorithm of the Fowler-Noll-Vo hash function.</value>
-        public FowlerNollVoAlgorithm Algorithm { get; set; }
     }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="bool"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="bool"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(bool input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="byte"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="byte"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(byte input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="char"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="char"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(char input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="DateTime"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="DateTime"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(DateTime input)
+    {
+        return ComputeHash(Convertible.GetBytes(input));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="DBNull"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="DBNull"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(DBNull input)
+    {
+        return ComputeHash(Convertible.GetBytes(input));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="decimal"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="decimal"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(decimal input)
+    {
+        return ComputeHash(Convertible.GetBytes(input));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="double"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="double"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(double input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="short"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="short"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(short input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="int"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="int"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(int input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="long"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="long"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(long input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="sbyte"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="sbyte"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(sbyte input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="float"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="float"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(float input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="ushort"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="ushort"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(ushort input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="uint"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="uint"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(uint input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="ulong"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="ulong"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(ulong input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="string"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="string"/> to compute the hash code for.</param>
+    /// <param name="setup">The <see cref="EncodingOptions"/> which may be configured.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(string input, Action<EncodingOptions> setup = null)
+    {
+        return ComputeHash(Convertible.GetBytes(input, setup));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="Enum"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="Enum"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(Enum input)
+    {
+        return ComputeHash(Convertible.GetBytes(input, EndianInitializer));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="T:IConvertible[]"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="T:IConvertible[]"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(params IConvertible[] input)
+    {
+        return ComputeHash(Arguments.ToEnumerableOf(input));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified sequence of <see cref="IConvertible"/>.
+    /// </summary>
+    /// <param name="input">The sequence of <see cref="IConvertible"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(IEnumerable<IConvertible> input)
+    {
+        return ComputeHash(Convertible.GetBytes(input));
+    }
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="T:byte[]"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="T:byte[]"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public abstract HashResult ComputeHash(byte[] input);
+
+    /// <summary>
+    /// Computes the hash value for the specified <see cref="Stream"/>.
+    /// </summary>
+    /// <param name="input">The <see cref="Stream"/> to compute the hash code for.</param>
+    /// <returns>A <see cref="HashResult"/> containing the computed hash code of the specified <paramref name="input"/>.</returns>
+    public virtual HashResult ComputeHash(Stream input)
+    {
+        return ComputeHash(Patterns.SafeInvoke(() => new MemoryStream(), destination =>
+        {
+            Decorator.Enclose(input).CopyStream(destination);
+            return destination;
+        }).ToArray());
+    }
+
+    /// <summary>
+    /// Defines the initializer that <see cref="Hash{TOptions}"/> must implement.
+    /// </summary>
+    /// <param name="options">An instance of the configured options.</param>
+    protected abstract void EndianInitializer(EndianOptions options);
+}
+```
+
+The configuration options for the same namespace are shown in a separate file:
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Cuemon.Collections.Generic;
+using Cuemon.Configuration;
+using Cuemon.IO;
+using Cuemon.Text;
+
+namespace Cuemon.Security;
+
+/// <summary>
+/// Configuration options for <see cref="FowlerNollVoHash"/>.
+/// </summary>
+public class FowlerNollVoOptions : ConvertibleOptions
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FowlerNollVoOptions"/> class.
+    /// </summary>
+    /// <remarks>
+    /// The following table shows the initial property values for an instance of <see cref="FowlerNollVoOptions"/>.
+    /// <list type="table">
+    ///     <listheader>
+    ///         <term>Property</term>
+    ///         <description>Initial Value</description>
+    ///     </listheader>
+    ///     <item>
+    ///         <term><see cref="EndianOptions.ByteOrder"/></term>
+    ///         <description><see cref="Endianness.BigEndian"/></description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="Algorithm"/></term>
+    ///         <description><see cref="FowlerNollVoAlgorithm.Fnv1a"/></description>
+    ///     </item>
+    /// </list>
+    /// </remarks>
+    public FowlerNollVoOptions()
+    {
+        Algorithm = FowlerNollVoAlgorithm.Fnv1a;
+        ByteOrder = Endianness.BigEndian;
+    }
+
+    /// <summary>
+    /// Gets or sets the algorithm of the Fowler-Noll-Vo hash function.
+    /// </summary>
+    /// <value>The algorithm of the Fowler-Noll-Vo hash function.</value>
+    public FowlerNollVoAlgorithm Algorithm { get; set; }
 }
 ```
