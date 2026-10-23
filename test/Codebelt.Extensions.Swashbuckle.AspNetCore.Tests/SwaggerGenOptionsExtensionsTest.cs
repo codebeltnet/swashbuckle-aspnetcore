@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Asp.Versioning;
 using Codebelt.Extensions.Asp.Versioning;
 using Codebelt.Extensions.Swashbuckle.AspNetCore.Assets.V1;
@@ -10,45 +10,45 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Codebelt.Extensions.Swashbuckle.AspNetCore
+namespace Codebelt.Extensions.Swashbuckle.AspNetCore;
+
+public class SwaggerGenOptionsExtensionsTest : Test
 {
-    public class SwaggerGenOptionsExtensionsTest : Test
+    public SwaggerGenOptionsExtensionsTest(ITestOutputHelper output) : base(output)
     {
-        public SwaggerGenOptionsExtensionsTest(ITestOutputHelper output) : base(output)
+    }
+
+    [Fact]
+    public async Task AddUserAgent_ShouldIncludeUserAgentDefaults()
+    {
+        using (var filter = WebHostTestFactory.Create(services =>
         {
-        }
-
-        [Fact]
-        public async Task AddUserAgent_ShouldIncludeUserAgentDefaults()
+            services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
+                .AddJsonFormatters();
+            services.AddEndpointsApiExplorer();
+            services.AddRestfulApiVersioning(o =>
+            {
+                o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
+                o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
+            });
+            services.AddSwaggerGen(o =>
+            {
+                o.AddUserAgent();
+            });
+        }, app =>
+               {
+                   app.UseRouting();
+                   app.UseEndpoints(routes => { routes.MapControllers(); });
+                   app.UseSwagger();
+                   app.UseSwaggerUI();
+               }))
         {
-            using (var filter = WebHostTestFactory.Create(services =>
-            {
-                services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
-                    .AddJsonFormatters();
-                services.AddEndpointsApiExplorer();
-                services.AddRestfulApiVersioning(o =>
-                {
-                    o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
-                    o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
-                });
-                services.AddSwaggerGen(o =>
-                {
-                    o.AddUserAgent();
-                });
-            }, app =>
-                   {
-                       app.UseRouting();
-                       app.UseEndpoints(routes => { routes.MapControllers(); });
-                       app.UseSwagger();
-                       app.UseSwaggerUI();
-                   }))
-            {
-                var client = filter.Host.GetTestClient();
-                var result = await client.GetStringAsync("/swagger/v1/swagger.json");
+            var client = filter.Host.GetTestClient();
+            var result = await client.GetStringAsync("/swagger/v1/swagger.json");
 
-                TestOutput.WriteLine(result);
+            TestOutput.WriteLine(result);
 
-                Assert.Equal(@"{
+            Assert.Equal(@"{
   ""openapi"": ""3.0.4"",
   ""info"": {
     ""title"": ""Codebelt.Extensions.Swashbuckle.AspNetCore.Tests"",
@@ -90,41 +90,41 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
   ]
 }", result, ignoreLineEndingDifferences: true);
 
-            }
         }
+    }
 
-        [Fact]
-        public async Task AddJwtBearerSecurity_ShouldIncludeJwtBearerSecurityDefaults()
+    [Fact]
+    public async Task AddJwtBearerSecurity_ShouldIncludeJwtBearerSecurityDefaults()
+    {
+        using (var filter = WebHostTestFactory.Create(services =>
+               {
+                   services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
+                       .AddJsonFormatters();
+                   services.AddEndpointsApiExplorer();
+                   services.AddRestfulApiVersioning(o =>
+                   {
+                       o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
+                       o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
+                   });
+                   services.AddSwaggerGen(o =>
+                   {
+                       o.AddJwtBearerSecurity();
+                   });
+               }, app =>
+               {
+                   app.UseRouting();
+                   app.UseEndpoints(routes => { routes.MapControllers(); });
+                   app.UseSwagger();
+                   app.UseSwaggerUI();
+               }))
         {
-            using (var filter = WebHostTestFactory.Create(services =>
-                   {
-                       services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
-                           .AddJsonFormatters();
-                       services.AddEndpointsApiExplorer();
-                       services.AddRestfulApiVersioning(o =>
-                       {
-                           o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
-                           o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
-                       });
-                       services.AddSwaggerGen(o =>
-                       {
-                           o.AddJwtBearerSecurity();
-                       });
-                   }, app =>
-                   {
-                       app.UseRouting();
-                       app.UseEndpoints(routes => { routes.MapControllers(); });
-                       app.UseSwagger();
-                       app.UseSwaggerUI();
-                   }))
-            {
-                var client = filter.Host.GetTestClient();
-                var result = await client.GetStringAsync("/swagger/v1/swagger.json");
+            var client = filter.Host.GetTestClient();
+            var result = await client.GetStringAsync("/swagger/v1/swagger.json");
 
-                TestOutput.WriteLine(result);
+            TestOutput.WriteLine(result);
 
 
-                Assert.Equal(@"{
+            Assert.Equal(@"{
   ""openapi"": ""3.0.4"",
   ""info"": {
     ""title"": ""Codebelt.Extensions.Swashbuckle.AspNetCore.Tests"",
@@ -166,41 +166,41 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
   ]
 }", result, ignoreLineEndingDifferences: true);
 
-            }
         }
+    }
 
-        [Fact]
-        public async Task AddBasicAuthenticationSecurity_ShouldIncludeBasicAuthenticationDefaults()
+    [Fact]
+    public async Task AddBasicAuthenticationSecurity_ShouldIncludeBasicAuthenticationDefaults()
+    {
+        using (var filter = WebHostTestFactory.Create(services =>
+               {
+                   services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
+                       .AddJsonFormatters();
+                   services.AddEndpointsApiExplorer();
+                   services.AddRestfulApiVersioning(o =>
+                   {
+                       o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
+                       o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
+                   });
+                   services.AddSwaggerGen(o =>
+                   {
+                       o.AddBasicAuthenticationSecurity();
+                   });
+               }, app =>
+               {
+                   app.UseRouting();
+                   app.UseEndpoints(routes => { routes.MapControllers(); });
+                   app.UseSwagger();
+                   app.UseSwaggerUI();
+               }))
         {
-            using (var filter = WebHostTestFactory.Create(services =>
-                   {
-                       services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
-                           .AddJsonFormatters();
-                       services.AddEndpointsApiExplorer();
-                       services.AddRestfulApiVersioning(o =>
-                       {
-                           o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
-                           o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
-                       });
-                       services.AddSwaggerGen(o =>
-                       {
-                           o.AddBasicAuthenticationSecurity();
-                       });
-                   }, app =>
-                   {
-                       app.UseRouting();
-                       app.UseEndpoints(routes => { routes.MapControllers(); });
-                       app.UseSwagger();
-                       app.UseSwaggerUI();
-                   }))
-            {
-                var client = filter.Host.GetTestClient();
-                var result = await client.GetStringAsync("/swagger/v1/swagger.json");
+            var client = filter.Host.GetTestClient();
+            var result = await client.GetStringAsync("/swagger/v1/swagger.json");
 
-                TestOutput.WriteLine(result);
+            TestOutput.WriteLine(result);
 
 
-                Assert.Equal(@"{
+            Assert.Equal(@"{
   ""openapi"": ""3.0.4"",
   ""info"": {
     ""title"": ""Codebelt.Extensions.Swashbuckle.AspNetCore.Tests"",
@@ -241,41 +241,41 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
   ]
 }", result, ignoreLineEndingDifferences: true);
 
-            }
         }
+    }
 
-        [Fact]
-        public async Task AddXApiKeySecurity_ShouldIncludeXApiKeyDefaults()
+    [Fact]
+    public async Task AddXApiKeySecurity_ShouldIncludeXApiKeyDefaults()
+    {
+        using (var filter = WebHostTestFactory.Create(services =>
         {
-            using (var filter = WebHostTestFactory.Create(services =>
+            services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
+                .AddJsonFormatters();
+            services.AddEndpointsApiExplorer();
+            services.AddRestfulApiVersioning(o =>
             {
-                services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
-                    .AddJsonFormatters();
-                services.AddEndpointsApiExplorer();
-                services.AddRestfulApiVersioning(o =>
-                {
-                    o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
-                    o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
-                });
-                services.AddSwaggerGen(o =>
-                {
-                    o.AddXApiKeySecurity();
-                });
-            }, app =>
+                o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
+                o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
+            });
+            services.AddSwaggerGen(o =>
             {
-                app.UseRouting();
-                app.UseEndpoints(routes => { routes.MapControllers(); });
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }))
-            {
-                var client = filter.Host.GetTestClient();
-                var result = await client.GetStringAsync("/swagger/v1/swagger.json");
+                o.AddXApiKeySecurity();
+            });
+        }, app =>
+        {
+            app.UseRouting();
+            app.UseEndpoints(routes => { routes.MapControllers(); });
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }))
+        {
+            var client = filter.Host.GetTestClient();
+            var result = await client.GetStringAsync("/swagger/v1/swagger.json");
 
-                TestOutput.WriteLine(result);
+            TestOutput.WriteLine(result);
 
 
-                Assert.Equal(@"{
+            Assert.Equal(@"{
   ""openapi"": ""3.0.4"",
   ""info"": {
     ""title"": ""Codebelt.Extensions.Swashbuckle.AspNetCore.Tests"",
@@ -317,7 +317,6 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
   ]
 }", result, ignoreLineEndingDifferences: true);
 
-            }
         }
     }
 }

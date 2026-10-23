@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Asp.Versioning;
 using Codebelt.Extensions.Asp.Versioning;
@@ -14,42 +14,42 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Xunit;
 
-namespace Codebelt.Extensions.Swashbuckle.AspNetCore
+namespace Codebelt.Extensions.Swashbuckle.AspNetCore;
+
+public class ServiceCollectionExtensionsTest : Test
 {
-    public class ServiceCollectionExtensionsTest : Test
+    public ServiceCollectionExtensionsTest(ITestOutputHelper output) : base(output)
     {
-        public ServiceCollectionExtensionsTest(ITestOutputHelper output) : base(output)
-        {
-        }
+    }
 
-        [Fact]
-        public async Task AddRestfulSwagger_ShouldInclude_RestfulApiVersioning_and_AddRestfulSwagger_Defaults()
-        {
-            using (var filter = WebHostTestFactory.Create(services =>
+    [Fact]
+    public async Task AddRestfulSwagger_ShouldInclude_RestfulApiVersioning_and_AddRestfulSwagger_Defaults()
+    {
+        using (var filter = WebHostTestFactory.Create(services =>
+               {
+                   services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
+                       .AddJsonFormatters();
+                   services.AddEndpointsApiExplorer();
+                   services.AddRestfulApiVersioning(o =>
                    {
-                       services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
-                           .AddJsonFormatters();
-                       services.AddEndpointsApiExplorer();
-                       services.AddRestfulApiVersioning(o =>
-                       {
-                           o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
-                           o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
-                       });
-                       services.AddRestfulSwagger();
-                   }, app =>
-                   {
-                       app.UseRouting();
-                       app.UseEndpoints(routes => { routes.MapControllers(); });
-                       app.UseSwagger();
-                       app.UseSwaggerUI();
-                   }))
-            {
-                var client = filter.Host.GetTestClient();
-                var result = await client.GetStringAsync("/swagger/v1/swagger.json");
+                       o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
+                       o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
+                   });
+                   services.AddRestfulSwagger();
+               }, app =>
+               {
+                   app.UseRouting();
+                   app.UseEndpoints(routes => { routes.MapControllers(); });
+                   app.UseSwagger();
+                   app.UseSwaggerUI();
+               }))
+        {
+            var client = filter.Host.GetTestClient();
+            var result = await client.GetStringAsync("/swagger/v1/swagger.json");
 
-                TestOutput.WriteLine(result);
+            TestOutput.WriteLine(result);
 
-                Assert.Equal(@"{
+            Assert.Equal(@"{
   ""openapi"": ""3.0.4"",
   ""info"": {
     ""title"": ""API 1.0"",
@@ -77,11 +77,11 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
   ]
 }", result, ignoreLineEndingDifferences: true);
 
-                result = await client.GetStringAsync("/swagger/v2/swagger.json");
+            result = await client.GetStringAsync("/swagger/v2/swagger.json");
 
-                TestOutput.WriteLine(result);
+            TestOutput.WriteLine(result);
 
-                Assert.Equal(@"{
+            Assert.Equal(@"{
   ""openapi"": ""3.0.4"",
   ""info"": {
     ""title"": ""API 2.0"",
@@ -136,90 +136,90 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
   ]
 }", result, ignoreLineEndingDifferences: true);
 
-            }
         }
+    }
 
-        [Fact]
-        public void AddRestfulSwagger_ShouldInvokeSetupDelegate_ExactlyOnce()
+    [Fact]
+    public void AddRestfulSwagger_ShouldInvokeSetupDelegate_ExactlyOnce()
+    {
+        var invocationCount = 0;
+
+        using (var filter = WebHostTestFactory.Create(services =>
+               {
+                   services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
+                       .AddJsonFormatters();
+                   services.AddEndpointsApiExplorer();
+                   services.AddRestfulApiVersioning(o =>
+                   {
+                       o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
+                   });
+                   services.AddRestfulSwagger(o =>
+                   {
+                       invocationCount++;
+                   });
+               }, app =>
+               {
+                   app.UseRouting();
+                   app.UseEndpoints(routes => { routes.MapControllers(); });
+                   app.UseSwagger();
+                   app.UseSwaggerUI();
+               }))
         {
-            var invocationCount = 0;
+            _ = filter.Host.Services.GetRequiredService<IOptions<RestfulSwaggerOptions>>().Value;
 
-            using (var filter = WebHostTestFactory.Create(services =>
-                   {
-                       services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
-                           .AddJsonFormatters();
-                       services.AddEndpointsApiExplorer();
-                       services.AddRestfulApiVersioning(o =>
-                       {
-                           o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
-                       });
-                       services.AddRestfulSwagger(o =>
-                       {
-                           invocationCount++;
-                       });
-                   }, app =>
-                   {
-                       app.UseRouting();
-                       app.UseEndpoints(routes => { routes.MapControllers(); });
-                       app.UseSwagger();
-                       app.UseSwaggerUI();
-                   }))
-            {
-                _ = filter.Host.Services.GetRequiredService<IOptions<RestfulSwaggerOptions>>().Value;
+            TestOutput.WriteLine($"Setup delegate invocation count: {invocationCount}");
 
-                TestOutput.WriteLine($"Setup delegate invocation count: {invocationCount}");
-
-                Assert.Equal(1, invocationCount);
-            }
+            Assert.Equal(1, invocationCount);
         }
+    }
 
-        [Fact]
-        public async Task AddRestfulSwagger_ShouldInclude_RestfulApiVersioning_and_AddRestfulSwagger_Configured()
+    [Fact]
+    public async Task AddRestfulSwagger_ShouldInclude_RestfulApiVersioning_and_AddRestfulSwagger_Configured()
+    {
+        using (var filter = WebHostTestFactory.Create(services =>
+               {
+                   services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
+                       .AddJsonFormatters();
+                   services.AddEndpointsApiExplorer();
+                   services.AddRestfulApiVersioning(o =>
+                   {
+                       o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
+                       o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
+                   });
+                   services.AddRestfulSwagger(o =>
+                   {
+                       o.OpenApiInfo.License = new OpenApiLicense()
+                       {
+                           Url = new Uri("https://github.com/codebeltnet/webapp-webapi-refapp/blob/main/LICENSE.md"),
+                           Name = "MIT"
+                       };
+                       o.OpenApiInfo.Contact = new OpenApiContact()
+                       {
+                           Url = new Uri("https://github.com/gimlichael"),
+                           Name = "gimlichael",
+                           Email = "root@gimlichael.dev"
+                       };
+                       o.OpenApiInfo.Title = "ASP.NET Core Reference Web API";
+                       o.OpenApiInfo.Description = "Sample ASP.NET Core Web App for Web API reference application, powered by Codebelt, based on the standard project generated by Microsoft.";
+                       o.OpenApiInfo.TermsOfService = new Uri("https://docs.github.com/en/site-policy/github-terms/github-terms-of-service");
+                       o.IncludeControllerXmlComments = true;
+                       o.XmlDocumentations.AddByType(typeof(ServiceCollectionExtensionsTest));
+                       o.JsonSerializerOptionsFactory = provider => provider.GetRequiredService<IOptions<JsonFormatterOptions>>().Value.Settings;
+                   });
+               }, app =>
+               {
+                   app.UseRouting();
+                   app.UseEndpoints(routes => { routes.MapControllers(); });
+                   app.UseSwagger();
+                   app.UseSwaggerUI();
+               }))
         {
-            using (var filter = WebHostTestFactory.Create(services =>
-                   {
-                       services.AddControllers().AddApplicationPart(typeof(FakeController).Assembly)
-                           .AddJsonFormatters();
-                       services.AddEndpointsApiExplorer();
-                       services.AddRestfulApiVersioning(o =>
-                       {
-                           o.Conventions.Controller<FakeController>().HasApiVersion(new ApiVersion(1, 0));
-                           o.Conventions.Controller<Assets.V2.FakeController>().HasApiVersion(new ApiVersion(2, 0));
-                       });
-                       services.AddRestfulSwagger(o =>
-                       {
-                           o.OpenApiInfo.License = new OpenApiLicense()
-                           {
-                               Url = new Uri("https://github.com/codebeltnet/webapp-webapi-refapp/blob/main/LICENSE.md"),
-                               Name = "MIT"
-                           };
-                           o.OpenApiInfo.Contact = new OpenApiContact()
-                           {
-                               Url = new Uri("https://github.com/gimlichael"),
-                               Name = "gimlichael",
-                               Email = "root@gimlichael.dev"
-                           };
-                           o.OpenApiInfo.Title = "ASP.NET Core Reference Web API";
-                           o.OpenApiInfo.Description = "Sample ASP.NET Core Web App for Web API reference application, powered by Codebelt, based on the standard project generated by Microsoft.";
-                           o.OpenApiInfo.TermsOfService = new Uri("https://docs.github.com/en/site-policy/github-terms/github-terms-of-service");
-                           o.IncludeControllerXmlComments = true;
-                           o.XmlDocumentations.AddByType(typeof(ServiceCollectionExtensionsTest));
-                           o.JsonSerializerOptionsFactory = provider => provider.GetRequiredService<IOptions<JsonFormatterOptions>>().Value.Settings;
-                       });
-                   }, app =>
-                   {
-                       app.UseRouting();
-                       app.UseEndpoints(routes => { routes.MapControllers(); });
-                       app.UseSwagger();
-                       app.UseSwaggerUI();
-                   }))
-            {
-                var client = filter.Host.GetTestClient();
-                var result = await client.GetStringAsync("/swagger/v1/swagger.json");
+            var client = filter.Host.GetTestClient();
+            var result = await client.GetStringAsync("/swagger/v1/swagger.json");
 
-                TestOutput.WriteLine(result);
+            TestOutput.WriteLine(result);
 
-                Assert.Equal(@"{
+            Assert.Equal(@"{
   ""openapi"": ""3.0.4"",
   ""info"": {
     ""title"": ""ASP.NET Core Reference Web API"",
@@ -259,11 +259,11 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
   ]
 }", result, ignoreLineEndingDifferences: true);
 
-                result = await client.GetStringAsync("/swagger/v2/swagger.json");
+            result = await client.GetStringAsync("/swagger/v2/swagger.json");
 
-                TestOutput.WriteLine(result);
+            TestOutput.WriteLine(result);
 
-                Assert.Equal(@"{
+            Assert.Equal(@"{
   ""openapi"": ""3.0.4"",
   ""info"": {
     ""title"": ""ASP.NET Core Reference Web API"",
@@ -348,7 +348,6 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
   ]
 }", result, ignoreLineEndingDifferences: true);
 
-            }
         }
     }
 }
