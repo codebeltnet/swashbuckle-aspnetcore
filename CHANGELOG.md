@@ -7,6 +7,23 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [11.0.0] - 2026-11-10
+
+This major release adds .NET 11 support and drops .NET 9 from the rolling two-version baseline.
+
+### Changed
+
+- Replaced `net9.0` with `net11.0` in the shared library and test targets, retaining `net10.0`,
+- Enabled preview SDK provisioning for the reusable build, pack, test, SonarCloud, and CodeQL jobs,
+- Added the .NET 11 RC2 SDK to the DocFX container build stage while retaining the existing DocFX tools and .NET 10 runtime,
+- Enabled weekly NuGet Dependabot pull requests from the repository root to cover central package management,
+- Aligned framework guidance, DocFX availability includes, package metadata, and the service-update availability fallback with the supported targets; the example application and DocFX API extraction remain on `net10.0`.
+
+### Fixed
+
+- Updated functional-test expectations for the ASP.NET Core 11 reference-pack documentation while preserving the .NET 10 assertions,
+- Configured shared Coverlet collection to measure both production assemblies instead of excluding them through the collector defaults.
+
 ## [10.3.0] - 2026-10-18
 
 This release includes minor API additions for selecting MCP documentation revisions and configuring individual OpenAPI documents, together with dependency and repository maintenance.
@@ -318,6 +335,7 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
+[11.0.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.3.0...HEAD
 [10.3.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.6...v10.3.0
 [10.2.6]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.5...v10.2.6
 [10.2.5]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.4...v10.2.5
