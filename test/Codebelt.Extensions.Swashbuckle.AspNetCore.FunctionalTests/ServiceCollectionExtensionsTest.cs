@@ -81,7 +81,11 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                 Assert.Contains("Gets the value of this instance.", result);
                 Assert.Contains("ProblemDetails", result);
                 Assert.Contains("A machine-readable format for specifying errors in HTTP API responses based on", result);
+#if NET11_0_OR_GREATER
+                Assert.Contains("A URI reference that identifies the problem type.", result);
+#else
                 Assert.Contains("A URI reference [RFC3986] that identifies the problem type.", result);
+#endif
                 Assert.Contains("A short, human-readable summary of the problem type.", result);
                 Assert.Contains("A human-readable explanation specific to this occurrence of the problem.", result);
             }
@@ -150,7 +154,11 @@ namespace Codebelt.Extensions.Swashbuckle.AspNetCore
                 Assert.Contains("Gets the value of this instance.", result);
                 Assert.Contains("ProblemDetails", result);
                 Assert.Contains("A machine-readable format for specifying errors in HTTP API responses based on", result);
+#if NET11_0_OR_GREATER
+                Assert.Contains("A URI reference that identifies the problem type.", result);
+#else
                 Assert.Contains("A URI reference [RFC3986] that identifies the problem type.", result);
+#endif
                 Assert.Contains("A short, human-readable summary of the problem type.", result);
                 Assert.Contains("A human-readable explanation specific to this occurrence of the problem.", result);
             }
