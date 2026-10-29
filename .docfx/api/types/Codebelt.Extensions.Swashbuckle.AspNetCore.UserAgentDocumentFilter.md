@@ -27,7 +27,7 @@ public class Program
         {
             // Register UserAgentDocumentFilter to document user-agent headers
             options.DocumentFilter<UserAgentDocumentFilter>();
-            
+
             // Or use the convenient extension method
             // options.AddUserAgent();
         });

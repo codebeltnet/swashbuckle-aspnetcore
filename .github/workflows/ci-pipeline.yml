@@ -199,7 +199,7 @@ jobs:
     with:
       repository: codebeltnet/swashbuckle-aspnetcore
     secrets: inherit
-          
+
   codeql:
     if: ${{always() && needs.init.outputs.run-privileged-jobs == 'true' && needs.build.result == 'success' && needs.test_qualitygate.result == 'success'}}
     name: call-codeql
