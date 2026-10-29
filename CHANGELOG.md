@@ -4,8 +4,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 For more details, please refer to `PackageReleaseNotes.txt` on a per assembly basis in the `.nuget` folder.
 
-> [!NOTE]  
+> [!NOTE]
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
+
+## [11.0.0] - 2026-10-29
+
+This major release adds .NET 11 support and drops .NET 9 from the rolling two-version baseline, together with dependency upgrades, CI and test environment updates, namespace style enforcement, and repository maintenance.
+
+### Added
+
+- Private build dependency on `SonarAnalyzer.CSharp` 10.35.0.4138 for non-test projects.
+
+### Changed
+
+- Replaced `net9.0` with `net11.0` in the shared library and test targets, retaining `net10.0`,
+- Upgraded `Swashbuckle.AspNetCore` from 10.3.0 to 10.3.1 for the core package and `ModelContextProtocol.AspNetCore` from 2.2.0 to 2.3.0 for the ModelContextProtocol package,
+- Upgraded `Codebelt.Coverlet.MTP` from 10.1.0 to 10.1.1 for the shared test projects and `Codebelt.Bootstrapper.Web` from 5.2.2 to 5.2.3 for the example application,
+- Enabled preview SDK provisioning for the reusable build, pack, test, SonarCloud, and CodeQL jobs,
+- Split the Docker test environment into separate net10.0 and net11.0 runner images and moved the WSL test distribution to Ubuntu-26.04,
+- Aligned framework guidance, DocFX availability includes, package metadata, and the service-update availability fallback with the supported targets; the example application and DocFX API extraction remain on `net10.0`,
+- Enforced file-scoped namespaces as a build error (IDE0161) and converted block-scoped namespaces in library, test, and example sources without public API changes,
+- Updated functional-test expectations for the ASP.NET Core 11 ProblemDetails reference-pack wording while preserving the .NET 10 assertions,
+- Standardized LF checkouts and normalized eligible tracked text to UTF-8 without BOM,
+- Updated the Sonar S3267 documentation link and the DocFX sitemap base URL to `https://swashbuckle-aspnetcore.codebelt.net/`.
+
+### Removed
+
+- Benchmark prompt file `.github/prompts/benchmark.prompt.md`.
 
 ## [10.3.0] - 2026-10-18
 
@@ -318,6 +343,7 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
+[11.0.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.3.0...v11.0.0
 [10.3.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.6...v10.3.0
 [10.2.6]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.5...v10.2.6
 [10.2.5]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.4...v10.2.5

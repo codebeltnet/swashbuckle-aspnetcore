@@ -30,7 +30,7 @@ public class Program
             {
                 // Cast to UserAgentDocumentOptions to demonstrate type usage
                 UserAgentDocumentOptions userAgentOptions = userAgentOptionsParam;
-                
+
                 userAgentOptions.Required = true;
                 userAgentOptions.Description = "Client application identifier";
             });

@@ -28,7 +28,7 @@ public class Program
             options.AddXApiKeySecurity();
             options.AddJwtBearerSecurity();
             options.AddBasicAuthenticationSecurity();
-            
+
             // Add user-agent documentation
             options.AddUserAgent();
         });

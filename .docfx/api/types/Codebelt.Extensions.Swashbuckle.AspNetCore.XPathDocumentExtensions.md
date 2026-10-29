@@ -18,19 +18,19 @@ public class Program
     public static void Main(string[] args)
     {
         var documents = new List<XPathDocument>();
-        
+
         // Load from a specific type's assembly
         documents.AddByType<Program>();
-        
+
         // Load from a specific assembly
         documents.AddByAssembly(typeof(Program).Assembly);
-        
+
         // Load from filename
         documents.AddByFilename("Documentation.xml");
-        
+
         // Load from base directory
         documents.AddFromBaseDirectory<Program>();
-        
+
         // Load from reference packs
         documents.AddFromReferencePacks<Program>();
     }
