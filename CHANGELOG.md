@@ -4,12 +4,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 For more details, please refer to `PackageReleaseNotes.txt` on a per assembly basis in the `.nuget` folder.
 
-> [!NOTE]  
+> [!NOTE]
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
-## [11.0.0] - 2026-11-10
+## [11.0.0] - 2026-10-29
 
-This major release adds .NET 11 support and drops .NET 9 from the rolling two-version baseline, together with dependency upgrades, CI and test environment updates, and namespace style enforcement.
+This major release adds .NET 11 support and drops .NET 9 from the rolling two-version baseline, together with dependency upgrades, CI and test environment updates, namespace style enforcement, and repository maintenance.
+
+### Added
+
+- Private build dependency on `SonarAnalyzer.CSharp` 10.35.0.4138 for non-test projects.
 
 ### Changed
 
@@ -20,11 +24,13 @@ This major release adds .NET 11 support and drops .NET 9 from the rolling two-ve
 - Split the Docker test environment into separate net10.0 and net11.0 runner images and moved the WSL test distribution to Ubuntu-26.04,
 - Aligned framework guidance, DocFX availability includes, package metadata, and the service-update availability fallback with the supported targets; the example application and DocFX API extraction remain on `net10.0`,
 - Enforced file-scoped namespaces as a build error (IDE0161) and converted block-scoped namespaces in library, test, and example sources without public API changes,
-- Updated functional-test expectations for the ASP.NET Core 11 ProblemDetails reference-pack wording while preserving the .NET 10 assertions.
+- Updated functional-test expectations for the ASP.NET Core 11 ProblemDetails reference-pack wording while preserving the .NET 10 assertions,
+- Standardized LF checkouts and normalized eligible tracked text to UTF-8 without BOM,
+- Updated the Sonar S3267 documentation link and the DocFX sitemap base URL to `https://swashbuckle-aspnetcore.codebelt.net/`.
 
 ### Removed
 
-- Benchmark prompt file `.github/prompts/benchmark.prompt.md`, which the repository no longer uses.
+- Benchmark prompt file `.github/prompts/benchmark.prompt.md`.
 
 ## [10.3.0] - 2026-10-18
 
