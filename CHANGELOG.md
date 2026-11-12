@@ -9,22 +9,23 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 
 ## [11.0.0] - 2026-11-12
 
-This major release replaces .NET 9 with .NET 11 while retaining .NET 10. It also updates dependencies, test infrastructure, and documentation hosting.
+This major release replaces .NET 9 with .NET 11 while retaining .NET 10, and updates dependencies and repository tooling.
 
 ### Added
 
 - .NET 11 targets for both packages and their tests,
-- `SonarAnalyzer.CSharp` 10.35.0.4138 as a private build dependency for non-test projects.
+- SonarAnalyzer.CSharp 10.36.0.15337 as a private build dependency for non-test projects.
 
 ### Changed
 
-- Updated `Swashbuckle.AspNetCore` from 10.3.0 to 10.3.1 and `ModelContextProtocol.AspNetCore` from 2.2.0 to 2.3.0,
-- Updated `Codebelt.Bootstrapper.Web` from 5.2.2 to 5.2.3, `Codebelt.Coverlet.MTP` from 10.1.0 to 10.1.1, `Microsoft.Testing.Extensions.HangDump` from 2.5.1 to 2.5.2, `Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json` from 10.8.1 to 10.8.2, and the .NET 10 `Microsoft.AspNetCore.OpenApi` declaration from 10.0.13 to 10.0.14,
-- Enabled preview SDK provisioning and split Docker test environments into .NET 10 and .NET 11 runners,
-- Updated functional-test expectations for ASP.NET Core 11 ProblemDetails wording while preserving the .NET 10 assertions,
-- Service-update automation retains planned releases and validates release dates,
-- Updated framework guidance, package metadata, and the DocFX sitemap base URL; the example application and DocFX API extraction remain on .NET 10,
-- Fingerprinted documentation assets use immutable caching for successful and 304 responses, no-store for errors, and full responses instead of ranges.
+- Updated Codebelt.Bootstrapper.Web from 5.2.2 to 5.2.3, Codebelt.Coverlet.MTP from 10.1.0 to 11.0.0, Codebelt.Extensions.Asp.Versioning from 10.2.5 to 11.0.0, and Codebelt.Extensions.Xunit.App from 12.0.2 to 13.0.0,
+- Updated Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json from 10.8.1 to 11.0.0, Microsoft.AspNetCore.OpenApi from 10.0.13 to 10.0.15, and ModelContextProtocol.AspNetCore from 2.2.0 to 2.4.0,
+- Updated Swashbuckle.AspNetCore from 10.3.0 to 10.3.1, Microsoft.NET.Test.Sdk from 18.11.0 to 18.12.0, Microsoft.Testing.Extensions.HangDump from 2.5.1 to 2.5.3, and xunit.v3 and xunit.v3.runner.console from 4.0.2 to 4.0.3,
+- Required file-scoped namespaces and normalized tracked text to LF and UTF-8 without BOM,
+- Split Docker test environments into .NET 10 and .NET 11 runners and updated functional-test expectations for ASP.NET Core 11 ProblemDetails wording,
+- Updated framework guidance and package metadata, the S3267 documentation link, and Scorecard action pins,
+- Updated service-update automation to retain planned releases and validate release dates,
+- Configured fingerprinted documentation assets to cache successful and revalidated responses, avoid caching errors, and serve full responses instead of ranges.
 
 ### Removed
 
