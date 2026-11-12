@@ -13,6 +13,12 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading;
 
+#if NET11_0_OR_GREATER
+using OpenApiMediaTypeValue = Microsoft.OpenApi.IOpenApiMediaType;
+#else
+using OpenApiMediaTypeValue = Microsoft.OpenApi.OpenApiMediaType;
+#endif
+
 namespace Codebelt.Extensions.Swashbuckle.AspNetCore.ModelContextProtocol.Versions;
 
 internal abstract class McpDocumentFilter
@@ -270,7 +276,7 @@ internal abstract class McpDocumentFilter
                     {
                         Required = true,
                         Description = CreateRequestBodyDescription(),
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>
                         {
                             ["application/json"] = requestMediaType
                         }
@@ -280,7 +286,7 @@ internal abstract class McpDocumentFilter
                         ["200"] = new OpenApiResponse
                         {
                             Description = "JSON-RPC 2.0 response (single) or SSE stream (multi-event).",
-                            Content = new Dictionary<string, OpenApiMediaType>
+                            Content = new Dictionary<string, OpenApiMediaTypeValue>
                             {
                                 ["application/json"] = new OpenApiMediaType
                                 {
@@ -398,7 +404,7 @@ internal abstract class McpDocumentFilter
             ["200"] = new OpenApiResponse
             {
                 Description = "SSE stream for session-scoped messages.",
-                Content = new Dictionary<string, OpenApiMediaType>
+                Content = new Dictionary<string, OpenApiMediaTypeValue>
                 {
                     ["text/event-stream"] = new OpenApiMediaType
                     {
@@ -448,7 +454,7 @@ internal abstract class McpDocumentFilter
                         ["200"] = new OpenApiResponse
                         {
                             Description = "SSE stream — connection stays open until the client or server closes it.",
-                            Content = new Dictionary<string, OpenApiMediaType>
+                            Content = new Dictionary<string, OpenApiMediaTypeValue>
                             {
                                 ["text/event-stream"] = new OpenApiMediaType
                                 {
@@ -481,7 +487,7 @@ internal abstract class McpDocumentFilter
                     {
                         Required = true,
                         Description = "A JSON-RPC 2.0 request or notification.",
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>
                         {
                             ["application/json"] = new OpenApiMediaType
                             {
