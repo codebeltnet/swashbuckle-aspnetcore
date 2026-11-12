@@ -5,7 +5,7 @@ Availability: .NET 11 and .NET 10
 - CHANGED Target frameworks by adding .NET 11 (net11.0) and removing .NET 9 (net9.0), so the package now targets .NET 11 and .NET 10
 
 # Breaking Changes
-- .NET 9 consumers must target .NET 10 or later.
+- REMOVED .NET 9 support; consumers must target .NET 10 or later
 
 Version: 10.3.0
 Availability: .NET 10 and .NET 9
