@@ -7,6 +7,10 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]  
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
+## [10.3.1] - 2026-11-12
+
+This is a service update that focuses on package dependencies.
+
 ## [10.3.0] - 2026-10-18
 
 This release includes minor API additions for selecting MCP documentation revisions and configuring individual OpenAPI documents, together with dependency and repository maintenance.
