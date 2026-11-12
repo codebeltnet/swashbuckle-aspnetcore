@@ -1,18 +1,17 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Codebelt.Extensions.Swashbuckle.AspNetCore.Assets
+namespace Codebelt.Extensions.Swashbuckle.AspNetCore.Assets;
+
+/// <summary>
+/// A fake model for functional testing purposes.
+/// </summary>
+public class FakeModel
 {
     /// <summary>
-    /// A fake model for functional testing purposes.
+    /// Gets or sets the message.
     /// </summary>
-    public class FakeModel
-    {
-        /// <summary>
-        /// Gets or sets the message.
-        /// </summary>
-        /// <value>The message.</value>
-        public string Message { get; set; }
-    }
+    /// <value>The message.</value>
+    public string Message { get; set; }
 }

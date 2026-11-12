@@ -1,21 +1,20 @@
-﻿using Cuemon.Diagnostics;
+using Cuemon.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Codebelt.Extensions.Swashbuckle.AspNetCore.Assets.V2
+namespace Codebelt.Extensions.Swashbuckle.AspNetCore.Assets.V2;
+
+[Produces("application/json")]
+[ApiController]
+[Route("[controller]")]
+public class FakeController : ControllerBase
 {
-    [Produces("application/json")]
-    [ApiController]
-    [Route("[controller]")]
-    public class FakeController : ControllerBase
+    /// <summary>
+    /// Gets an OK response with a body of Unit Test V2.
+    /// </summary>
+    /// <returns>IActionResult.</returns>
+    [HttpGet]
+    public IActionResult Get(FaultSensitivityDetails details)
     {
-        /// <summary>
-        /// Gets an OK response with a body of Unit Test V2.
-        /// </summary>
-        /// <returns>IActionResult.</returns>
-        [HttpGet]
-        public IActionResult Get(FaultSensitivityDetails details)
-        {
-            return Ok("Unit Test 2");
-        }
+        return Ok("Unit Test 2");
     }
 }

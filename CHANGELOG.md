@@ -4,8 +4,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 For more details, please refer to `PackageReleaseNotes.txt` on a per assembly basis in the `.nuget` folder.
 
-> [!NOTE]  
+> [!NOTE]
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
+
+## [11.0.0] - 2026-11-12
+
+This is a major release that replaces .NET 9 with .NET 11 while retaining .NET 10, and updates dependencies and repository tooling.
+
+### Added
+
+- .NET 11 targets for both packages and their tests,
+- `SonarAnalyzer.CSharp` 10.36.0.15337 as a private build dependency for non-test projects.
+
+### Changed
+
+- Updated `Codebelt.Bootstrapper.Web` from 5.2.2 to 5.2.3, `Codebelt.Coverlet.MTP` from 10.1.0 to 11.0.0, `Codebelt.Extensions.Asp.Versioning` from 10.2.5 to 11.0.0, and `Codebelt.Extensions.Xunit.App` from 12.0.2 to 13.0.0,
+- Updated `Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json` from 10.8.1 to 11.0.0, `ModelContextProtocol.AspNetCore` from 2.2.0 to 2.4.0, `Microsoft.NET.Test.Sdk` from 18.11.0 to 18.12.0, `Microsoft.Testing.Extensions.HangDump` from 2.5.1 to 2.5.3, and `xunit.v3` and `xunit.v3.runner.console` from 4.0.2 to 4.0.3,
+- Updated central version declarations for `Swashbuckle.AspNetCore` from 10.3.0 to 10.3.1 for .NET 10 and 11.0.1 for .NET 11, and for `Microsoft.AspNetCore.OpenApi` from 10.0.13 to 10.0.15 for .NET 10 and 11.0.0 for .NET 11,
+- Required file-scoped namespaces and normalized tracked text to LF and UTF-8 without BOM,
+- Split Docker test environments into .NET 10 and .NET 11 runners and updated functional-test expectations for ASP.NET Core 11 ProblemDetails wording,
+- Updated framework guidance and package metadata, the S3267 documentation link, and Scorecard action pins,
+- Updated service-update automation to retain planned releases and validate release dates,
+- Configured fingerprinted documentation assets to cache successful and revalidated responses, avoid caching errors, and serve full responses instead of ranges.
+
+### Removed
+
+- .NET 9 targets; consumers must target .NET 10 or later,
+- The repository's benchmark prompt.
 
 ## [10.3.0] - 2026-10-18
 
@@ -318,6 +343,7 @@ This major release is first and foremost focused on ironing out any wrinkles tha
 - UserAgentDocumentOptions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that provides programmatic configuration for the UserAgentDocumentFilter class
 - XPathDocumentExtensions class in the Codebelt.Extensions.Swashbuckle.AspNetCore namespace that consist of extension methods for the XPathDocument class: AddByType, AddByAssembly, AddByFilename
 
+[11.0.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.3.0...v11.0.0
 [10.3.0]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.6...v10.3.0
 [10.2.6]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.5...v10.2.6
 [10.2.5]: https://github.com/codebeltnet/swashbuckle-aspnetcore/compare/v10.2.4...v10.2.5
