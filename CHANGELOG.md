@@ -7,30 +7,29 @@ For more details, please refer to `PackageReleaseNotes.txt` on a per assembly ba
 > [!NOTE]
 > Changelog entries prior to version 8.4.0 was migrated from previous versions of Codebelt.Extensions.Swashbuckle.AspNetCore.
 
-## [11.0.0] - 2026-10-29
+## [11.0.0] - 2026-11-12
 
-This major release adds .NET 11 support and drops .NET 9 from the rolling two-version baseline, together with dependency upgrades, CI and test environment updates, namespace style enforcement, and repository maintenance.
+This major release replaces .NET 9 with .NET 11 while retaining .NET 10. It also updates dependencies, test infrastructure, and documentation hosting.
 
 ### Added
 
-- Private build dependency on `SonarAnalyzer.CSharp` 10.35.0.4138 for non-test projects.
+- .NET 11 targets for both packages and their tests,
+- `SonarAnalyzer.CSharp` 10.35.0.4138 as a private build dependency for non-test projects.
 
 ### Changed
 
-- Replaced `net9.0` with `net11.0` in the shared library and test targets, retaining `net10.0`,
-- Upgraded `Swashbuckle.AspNetCore` from 10.3.0 to 10.3.1 for the core package and `ModelContextProtocol.AspNetCore` from 2.2.0 to 2.3.0 for the ModelContextProtocol package,
-- Upgraded `Codebelt.Coverlet.MTP` from 10.1.0 to 10.1.1 for the shared test projects and `Codebelt.Bootstrapper.Web` from 5.2.2 to 5.2.3 for the example application,
-- Enabled preview SDK provisioning for the reusable build, pack, test, SonarCloud, and CodeQL jobs,
-- Split the Docker test environment into separate net10.0 and net11.0 runner images and moved the WSL test distribution to Ubuntu-26.04,
-- Aligned framework guidance, DocFX availability includes, package metadata, and the service-update availability fallback with the supported targets; the example application and DocFX API extraction remain on `net10.0`,
-- Enforced file-scoped namespaces as a build error (IDE0161) and converted block-scoped namespaces in library, test, and example sources without public API changes,
-- Updated functional-test expectations for the ASP.NET Core 11 ProblemDetails reference-pack wording while preserving the .NET 10 assertions,
-- Standardized LF checkouts and normalized eligible tracked text to UTF-8 without BOM,
-- Updated the Sonar S3267 documentation link and the DocFX sitemap base URL to `https://swashbuckle-aspnetcore.codebelt.net/`.
+- Updated `Swashbuckle.AspNetCore` from 10.3.0 to 10.3.1 and `ModelContextProtocol.AspNetCore` from 2.2.0 to 2.3.0,
+- Updated `Codebelt.Bootstrapper.Web` from 5.2.2 to 5.2.3, `Codebelt.Coverlet.MTP` from 10.1.0 to 10.1.1, `Microsoft.Testing.Extensions.HangDump` from 2.5.1 to 2.5.2, `Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json` from 10.8.1 to 10.8.2, and the .NET 10 `Microsoft.AspNetCore.OpenApi` declaration from 10.0.13 to 10.0.14,
+- Enabled preview SDK provisioning and split Docker test environments into .NET 10 and .NET 11 runners,
+- Updated functional-test expectations for ASP.NET Core 11 ProblemDetails wording while preserving the .NET 10 assertions,
+- Service-update automation retains planned releases and validates release dates,
+- Updated framework guidance, package metadata, and the DocFX sitemap base URL; the example application and DocFX API extraction remain on .NET 10,
+- Fingerprinted documentation assets use immutable caching for successful and 304 responses, no-store for errors, and full responses instead of ranges.
 
 ### Removed
 
-- Benchmark prompt file `.github/prompts/benchmark.prompt.md`.
+- .NET 9 targets; consumers must target .NET 10 or later,
+- The repository's benchmark prompt.
 
 ## [10.3.0] - 2026-10-18
 
